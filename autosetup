@@ -1,0 +1,17 @@
+# ------------------------------------------------------------------
+#  BSOF/I - Block structured factorization and inversion codes 
+#  for CPU+GPU platforms
+#  Copyright (c) 2013, Sergiy Gogolenko
+#  e-mail: sgogolenk@ucdavis.edu
+# ------------------------------------------------------------------
+#  Description:
+#   Setup config scriph with settings.
+
+#!/bin/bash
+
+SYSTEM=$1
+TOP_DIR=`echo "${PWD}" | sed -e 's/\//@/g'`
+
+cat ./config.mk.template | \
+    sed "s/@system@/${SYSTEM}/g;s/@top_dir@/${TOP_DIR}/g;s/@/\//g"\
+     > ./config.mk

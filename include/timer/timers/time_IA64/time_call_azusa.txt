@@ -1,0 +1,36 @@
+
+      integer(kind=8)                 :: int_1,int_2
+      integer(kind=8)                 :: get_itc      
+      
+      doubleprecision                 :: time_1,time_2,diff_time
+
+# CP_time=1.d0/(800.*1.d6)  ! for itanium 800 MHz
+# int_2=get_itc()
+# time_2=real(int_2,kind=8)*CP_time
+# time_2 in seconds
+
+cc -c get_itc.s
+cat <<EOF > get_itc.s
+.text
+        .align 16
+// C version
+//    long get_itc()
+//
+        .global get_itc#
+        .proc get_itc#
+get_itc:
+        mov r8 = ar.itc
+        br.ret.sptk.many b0
+        .endp get_itc#
+
+        .align 16
+// Fortran version
+//      integer*8 get_itc
+//
+        .global get_itc_#
+        .proc get_itc_#
+get_itc_:
+        mov r8 = ar.itc
+        br.ret.sptk.many b0
+        .endp get_itc_#
+EOF
