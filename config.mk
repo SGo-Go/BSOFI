@@ -5,10 +5,10 @@
 #  e-mail: sgogolenk/ucdavis.edu
 # ------------------------------------------------------------------
 #  Description:
-#   Auto-selection of configuration.
+#   Template for config settings.
 
-SYSTEM  = user
-TOP_DIR = /home/sergiy/project/BSOFI
+SYSTEM  = zwolf
+TOP_DIR = /home/sergiy/project/BSOFI/trunk
 
 include $(TOP_DIR)/config/platforms/$(SYSTEM)-settings.mk
 include $(TOP_DIR)/config/makefile-general-settings.mk

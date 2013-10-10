@@ -117,7 +117,11 @@
   fprintf(stderr, "[file %s, line %d]: " __fmt,	\
 	  __FILE__, __LINE__, __VA_ARGS__)
 
-#define DBGERROR(__fmt, ...) DBGPRINTF("Error>> " __fmt "\n", __VA_ARGS__)
+/* #define DBGERROR(__fmt, ...) DBGPRINTF("Error>> " __fmt "\n", __VA_ARGS__) */
+
+#define DBGERROR(__fmt, ...)				\
+  fprintf(stderr, "Error[%s, l%d]: " __fmt "\n",	\
+	  __FILE__, __LINE__, __VA_ARGS__)
 
 /**************************************************
  *      Precision related definitions             *

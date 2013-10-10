@@ -62,7 +62,7 @@ int process(int threads, int tests, int n_process, int L_first)
    *************************************************************/
 #ifdef HAS_CUBLAS
   if( CUBLAS_STATUS_SUCCESS != cublasInit() ) {
-    DBGERROR("CUBLAS initialization failed");
+    DBGERROR("CUBLAS initialization failed %d", 0);
     exit(-1);
   }
 #endif

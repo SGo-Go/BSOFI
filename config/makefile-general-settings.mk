@@ -60,7 +60,7 @@ OPT_CUFLAGS    := -O3 -Xptxas -v -m 64 -arch compute_20
 
 CUDA_PATH     ?= /usr/local/cuda
 ifneq "$(CUDA_PATH)" ""
-CUDA_CFLAGS    = -I$(CUDA_PATH) -DHAS_CUBLAS
+CUDA_CFLAGS    = -I$(CUDA_PATH)/include -DHAS_CUBLAS
 CUDA_CXXFLAGS  = -I$(CUDA_PATH)/include -DHAS_CUBLAS
 CUDA_LIBFLAGS  = -L$(CUDA_PATH)/lib64 -lcublas -lcudart 
 endif 

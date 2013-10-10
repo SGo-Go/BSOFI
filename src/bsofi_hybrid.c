@@ -12,8 +12,8 @@
 #include "bsofi.h"
 #include <config.h>
 #include <third_party/lapack.h>
-#include <third_party/cublas.h>
 #include "bsofi_macro.h"
+#include <third_party/cublas.h>
 #include "bsofi_params.h"
 
 /* ===================================================================

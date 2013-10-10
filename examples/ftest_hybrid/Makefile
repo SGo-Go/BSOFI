@@ -28,7 +28,7 @@ CFLAGS   += $(LAPACK_CXXFLAGS) \
 
 LIBS     +=  $(BSOFI_LIB) \
 	$(LAPACK_LIBFLAGS) $(CXXLIBS) $(CUDA_LIBFLAGS) $(MAGMA_LIBFLAGS) \
-	# -limf -lirc 
+	 -limf -lirc 
 
 HEADERS   = bench_bso.hpp gemm.hpp setup.hpp #$(wildcard $(TOP_DIR)/include/*.h)
 HEADERSXX = $(HEADERS) $(wildcard $(TOP_DIR)/include/*.hpp)
