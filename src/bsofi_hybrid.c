@@ -11,7 +11,8 @@
 
 #include "bsofi.h"
 #include <config.h>
-#include <third_party/lapack.hpp>
+#include <third_party/lapack.h>
+#include <third_party/cublas.h>
 #include "bsofi_macro.h"
 #include "bsofi_params.h"
 
@@ -82,20 +83,6 @@ int hybridXbsofiLWork(int n, int L, int lda, int lworkHostDevice)
   if(lworkTotal < work[0]) {lworkTotal = work[0];}
   return lworkTotal;
 }
-
-#define cublasXlaset(__t, __m, __n, __A, __lda, __B, __ldb)		\
-  HANDLE_CUBLAS_ERROR( cublasSetMatrix					\
-		       (__m, __n, sizeof(scalar_t),			\
-			__A, __lda, __B, __ldb), "cublasSetMatrix")
-
-#define cublasXlaget(__t, __m, __n, __A, __lda, __B, __ldb)		\
-  HANDLE_CUBLAS_ERROR( cublasGetMatrix					\
-		       (__m, __n, sizeof(scalar_t),			\
-			__A, __lda, __B, __ldb), "cublasGetMatrix")
-
-#define cublasXgemm  cublasDgemm
-#define lapackXlaset lapackXlacpy
-#define lapackXlaget lapackXlacpy
 
 #ifdef USE_PROF
 timeval_t tim1;
@@ -170,7 +157,7 @@ int hybridXbsoftri(cublasHandle_t handle, int n, int L,
   scalar_t *dW;
 
   /* Get maximum value of l_switch for inversion */
-  l_switch = get_li(0, L); //L*Fswitch/1000; if(l_switch > L-3) l_switch = L-3;
+  l_switch = get_li(0, L); /* L*Fswitch/1000; if(l_switch > L-3) l_switch = L-3; */
 
   dXarg  = dwork                   - (L - l_switch - 1)*n*lddx;
   dXprod = dwork + lddx*n*l_switch - (L - l_switch - 1)*n*lddx;
@@ -218,7 +205,7 @@ int hybridXbsoftri(cublasHandle_t handle, int n, int L,
 
       l_switch_prev = 0;
       for(i = L - 4; i >= 0; i--) {
-	l_switch = get_li(i, L); // l_switch = ((L - i)*Fswitch)/1000; if(l_switch > L-i-3) l_switch = L-i-3;
+	l_switch = get_li(i, L); /* l_switch = ((L - i)*Fswitch)/1000; if(l_switch > L-i-3) l_switch = L-i-3; */
 	if(l_switch > l_switch_prev) {
 	  BENCH_CUMMULATIVE(profHybridBSOFTRI.memset, cublasXlaset ('A', n, n*(l_switch - l_switch_prev), 
 								    A_BLK(i+1, L-1 - l_switch), lda, 

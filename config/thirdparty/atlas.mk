@@ -18,5 +18,5 @@ ATLAS_LIBFLAGS = -L$(ATLAS_LIB) -lf77refblas -latlas #-lcblas
 BLAS_LIBFLAGS   = -L$(ATLAS_LIB) -lf77blas -lcblas -latlas
 LAPACK_CXXFLAGS = -DHAS_BLAS -D HAS_LAPACK -DHAS_ATLAS
 LAPACK_CCFLAGS  = -DHAS_BLAS -D HAS_LAPACK -DHAS_ATLAS
-LAPACK_LIBFLAGS:= -L$(ATLAS_LIB)  -llapack -lf77blas -lcblas -latlas
+LAPACK_LIBFLAGS:= -L$(ATLAS_LIB) -llapack -lf77blas -lcblas -latlas $(FLIBS)
 #LAPACK_LIBFLAGS = $(ATLAS_LIB)/liblapack.a

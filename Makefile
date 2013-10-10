@@ -10,20 +10,24 @@
 
 include ./config.mk
 
-.PHONY  : clean install all lib examples
+.PHONY  : clean install all lib examples bench
 
-all: lib examples
+all: lib examples bench
 
 lib:
 	($(CD) src; $(MAKE))
 
-examples:
+examples: lib
 	($(CD) examples; $(MAKE))
+
+bench: lib
+	($(CD) bench; $(MAKE))
 
 clean:
 	$(RM) $(TOP_DIR)/*~
 	($(CD) $(TOP_DIR)/src; $(MAKE) clean)
 	($(CD) $(TOP_DIR)/examples; $(MAKE) clean)
+	($(CD) $(TOP_DIR)/bench; $(MAKE) clean)
 
 allclean: clean
 	$(RM) -R `find $(TOP_DIR) -name *~` $(TOP_DIR)/*.o

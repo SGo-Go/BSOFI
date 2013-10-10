@@ -10,9 +10,6 @@
 
 BSOFI_LIB := $(TOP_DIR)/bsofi.la
 
-LAPACK ?= mkl
-include $(TOP_DIR)/config/thirdparty/$(LAPACK).mk
-
 INSTALL_DIR ?= $(TOP_DIR)/bin
 
 CC   ?= icc 
@@ -62,15 +59,22 @@ OPT_CUFLAGS    := -O3 -Xptxas -v -m 64 -arch compute_20
 # CU_FLAGS = -g -Xptxas -v -m 64 -arch sm_20
 
 CUDA_PATH     ?= /usr/local/cuda
-CUDA_CFLAGS    = -I$(CUDA_PATH)
-CUDA_CXXFLAGS  = -I$(CUDA_PATH)/include 
-CUDA_LIBFLAGS  = -L$(CUDA_PATH)/lib64 -lcublas -lcudart
+ifneq "$(CUDA_PATH)" ""
+CUDA_CFLAGS    = -I$(CUDA_PATH) -DHAS_CUBLAS
+CUDA_CXXFLAGS  = -I$(CUDA_PATH)/include -DHAS_CUBLAS
+CUDA_LIBFLAGS  = -L$(CUDA_PATH)/lib64 -lcublas -lcudart 
+endif 
 
 BOOST_PATH    ?= /usr
+ifneq "$(BOOST_PATH)" ""
 BOOST_INCLUDE  = $(BOOST_PATH)/include
 BOOST_LIB      = $(BOOST_PATH)/lib
 BOOST_CXXFLAGS = -I$(BOOST_INCLUDE) -DHAS_BOOST
 BOOST_LIBFLAGS = $(BOOST_LIB)/libboost_program_options.a
+endif 
+
+LAPACK ?= mkl
+include $(TOP_DIR)/config/thirdparty/$(LAPACK).mk
 
 MAGMA_PATH    ?= /usr/local
 ifneq "$(MAGMA_PATH)" ""

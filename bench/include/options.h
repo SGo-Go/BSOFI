@@ -1,3 +1,13 @@
+/**********************************************************************
+ * BSOF/I - Block structured factorization and inversion codes 
+ *  for CPU+GPU platforms
+ * Copyright (c) 2013, Sergiy Gogolenko
+ * e-mail: sgogolenko@ucdavis.edu
+ **********************************************************************
+ * Description:
+ *  Automatic options processing in benchmarking executables.
+ */
+
 #include <stdio.h>
 
 #define MAX_TEST 20
@@ -6,7 +16,7 @@ const int ntest = 12;
 
 int process(int threads, int tests, int n, int L);
 
-int main( int argc, char** argv)
+int main(int argc, char** argv)
 {
   int n = 0, L = 10, i;
   int nthreads = 0, tests = 0;
@@ -32,7 +42,6 @@ int main( int argc, char** argv)
       k = n; 
       for(i = tests; i > 0; i--, k-=2){
 	sizen[i-1] = k*k;
-	//DBG(k <<i );
       }
     }
     else if (!n  && !tests ) {tests = ntest;}
@@ -48,6 +57,10 @@ int main( int argc, char** argv)
     tests = ntest;
   }
 
-  //DBG(nthreads << tests << n << L);
-  process(nthreads, tests, n, L);
+  if(n == 0)  n = 256;
+  if(L == 0)  L = 4;
+  if(nthreads == 0) nthreads = 4; 
+  if(tests    == 0) tests = 2;
+
+  return process(nthreads, tests, n, L);
 }

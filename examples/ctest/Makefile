@@ -24,8 +24,9 @@ CXXFLAGS += -DUSE_PROF $(LAPACK_CXXFLAGS) \
 CFLAGS   += $(LAPACK_CXXFLAGS) \
 	$(CUDA_CXXFLAGS) $(MAGMA_CXXFLAGS) # $(DBG_CXXFLAGS) 
 
-LIBS     +=  -limf -lirc $(BSOFI_LIB) \
+LIBS     +=  $(BSOFI_LIB) \
 	$(LAPACK_LIBFLAGS) $(CXXLIBS) $(CUDA_LIBFLAGS) $(MAGMA_LIBFLAGS) \
+	# -limf -lirc 
 
 HEADERS   = bench_bso.hpp gemm.hpp setup.hpp #$(wildcard $(TOP_DIR)/include/*.h)
 HEADERSXX = $(HEADERS) $(wildcard $(TOP_DIR)/include/*.hpp)

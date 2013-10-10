@@ -14,8 +14,14 @@
 
 /* Settings */
 #include <config.h>
-#include <cuda_runtime.h>
-#include <cublas.h>
+
+#ifdef HAS_CUBLAS
+#  include <cuda_runtime.h>
+#  include <cublas.h>
+#else
+typedef int cublasHandle_t;
+#endif
+
 #include "bsofi_macro.h"
 
 /* Names with plain C mangling */

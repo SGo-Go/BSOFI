@@ -16,11 +16,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
-#ifdef HAS_CUDA
-#include "bsofi_hybrid.h"
-#endif
+
+#ifdef HAS_LAPACK
 #include "bsofi_cpu.h"
+  
+  /* #  ifdef HAS_CUBLAS */
+#  include "bsofi_hybrid.h"
+  /* #  endif */
+#endif
 
 #ifdef HAS_MAGMA
 #include "bsofi_gpu.h"
@@ -38,8 +41,8 @@ extern "C" {
    to the best of CPU and CPU+GPU codes in Fortran */
 /* #include <cuda_runtime.h> */
 
-typedef struct __bsofiHandle_t {
-#ifdef HAS_CUDA
+typedef struct bsofiHandle_s {
+#ifdef HAS_CUBLAS
     cublasHandle_t handle;
 #else
     int handle;

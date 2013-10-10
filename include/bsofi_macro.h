@@ -10,10 +10,12 @@
 
 #ifndef __BSOFI_MACRO_H__
 #define __BSOFI_MACRO_H__
-/* #include <config.h> */
+
+#include <config.h>
+#include "third_party/cublas.h"
 
 #define GPU_ALIGN 64 /* 32 */
-#define GET_LD_DEV(__len) (((__len + GPU_ALIGN - 1)/GPU_ALIGN) * GPU_ALIGN)
+#define GET_LD_DEV(__len) ((((__len) + (GPU_ALIGN)-1)/(GPU_ALIGN))*(GPU_ALIGN))
 
 #define IDX_OFFSET(__ld,__i, __j) ((__j)*(__ld) + __i)
 #define BLK_OFFSET(__ld,__i, __j) (n*((__j)*(__ld) + __i))
@@ -29,23 +31,10 @@
 #include <stdio.h>
 #define CHECK_PTR(__ptr)						\
   if(!(__ptr)) {							\
-    fprintf(stderr, "Error: invalid pointed\n   >> " #__ptr "\n");	\
+    /* DBGERROR("Invalid pointed" #__ptr); */				\
     exit(-1);								\
   }
-#define HANDLE_CUBLAS_ERROR(__code, __message)				\
-  if (__code != CUBLAS_STATUS_SUCCESS) {				\
-    printf ("CUBLAS error: " __message);				\
-    cudaFree(dwork); cublasShutdown();/* cublasDestroy(handle); */	\
-    *info = -1;								\
-    return -1;								\
-  }
 
-#define CHECK_CUMALLOC(__code)						\
-  if (cudaSuccess != __code) {						\
-    fprintf( stderr, "CUDA: GPU device memory allocation failed\n");	\
-    cudaFree(dwork); cublasShutdown();/* cublasDestroy(handle); */	\
-    return -1;								\
-  }
 
 typedef struct _bsofi_profile_t {
   double cpu;
@@ -70,6 +59,29 @@ typedef struct _bsofi_profile_t {
 #else
 #  define BENCH_CUMMULATIVE(__total_time, __code_do) {__code_do;}
 #  define RESET_BSOFI_PROFILE(__counter) 
+#endif
+
+#ifdef HAS_CUBLAS
+#  define CHECK_CUMALLOC(__code)						\
+  if (cudaSuccess != __code) {						\
+    DBGERROR("CUDA: GPU device memory allocation failed");		\
+    cudaFree(dwork); cublasShutdown();/* cublasDestroy(handle); */	\
+    return -1;								\
+  }
+
+#  define CUBLAS_INIT()						\
+  if( CUBLAS_STATUS_SUCCESS != cublasInit() ) {			\
+    fprintf(stderr, "ERROR: CUBLAS initialization failed\n");	\
+    exit(-1);							\
+  }
+
+#  define CUBLAS_FINALIZE()			\
+  cublasShutdown() /* cublasDestroy(handle); */
+
+#else
+#  define CUBLAS_INIT()
+#  define CUBLAS_FINALIZE()
+#  define CHECK_CUMALLOC(__code) __code
 #endif
 
 #endif

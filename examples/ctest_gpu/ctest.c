@@ -77,10 +77,7 @@ int main(void)
   /*************************************************************
    * Init devices and space
    *************************************************************/
-  if( CUBLAS_STATUS_SUCCESS != cublasInit() ) {
-    fprintf(stderr, "ERROR: CUBLAS initialization failed\n");
-    exit(-1);
-  }
+  CUBLAS_INIT();
 
   gpuXbsof(n, nb, dA, ldda, tauBsofi, tmp, -1, dT, &info);
   if (lhw < tmp[0]) lhw = tmp[0];
@@ -173,10 +170,16 @@ int main(void)
   free(tauBsofi);
   free(hW);
 
+#ifdef HAS_CUBLAS
   cudaFree (dW);
   cudaFree (dT);
   cudaFree (dA);
-  cublasShutdown(); /* cublasDestroy(handle); */
+#else
+  free (dW);
+  free (dT);
+  free (dA);
+#endif
 
+  CUBLAS_FINALIZE();
   return 0;
 }

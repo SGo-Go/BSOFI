@@ -19,5 +19,5 @@ LAPACK         = atlas
 CC   = gcc
 CXX  = g++
 FC   = gfortran
-LINK = g++
+LINK = gcc #g++
 

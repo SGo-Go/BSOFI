@@ -2,7 +2,7 @@
  * BSOF/I - Block structured factorization and inversion codes 
  *  for CPU+GPU platforms
  * Copyright (c) 2013, Sergiy Gogolenko
- * e-mail: sgogolenk@ucdavis.edu
+ * e-mail: sgogolenko@ucdavis.edu
  **********************************************************************
  * Description:
  *  Configuration file
@@ -12,7 +12,7 @@
 #define __CONFIG_H__
 #pragma once
 
-//#undef  __SINGLE_PREC__
+/* #undef  __SINGLE_PREC__ */
 #define USE_FORTRAN
 #define F77MANGLING _
 
@@ -60,6 +60,11 @@
 #  define ASSUME_ALIGNED(P) P
 #endif
 
+#ifdef _MSC_VER
+#  define WARNING_PRAGMA(__text) __pragma(message #__text)
+#else
+#endif
+
 #ifdef HAS_MKL
 #  include <mkl_service.h>
 #  define SET_NUM_BLAS_THREADS(N) mkl_set_num_threads(N)
@@ -72,13 +77,13 @@
  **************************************************/
 
 #ifdef  __GNUC__
-#define DISABLE_SSE_EXCEPTIONS()  { \
-  int aux; \
-  asm( \
-  "stmxcsr   %[aux]           \n\t" \
-  "orl       $32832, %[aux]   \n\t" \
-  "ldmxcsr   %[aux]           \n\t" \
-  : : [aux] "m" (aux)); \
+#define DISABLE_SSE_EXCEPTIONS()  {		\
+    int aux;					\
+    asm(					\
+	"stmxcsr   %[aux]           \n\t"	\
+	"orl       $32832, %[aux]   \n\t"	\
+	"ldmxcsr   %[aux]           \n\t"	\
+	: : [aux] "m" (aux));			\
   }
 #else
 #define DISABLE_SSE_EXCEPTIONS()
@@ -90,7 +95,8 @@
 
 #ifdef USE_PROF
 
-#  define PRROUTINE(f77name, F77NAME) FROUTINE(CONCAT(my, f77name), CONCAT(MY, F77NAME))
+#  define PRROUTINE(f77name, F77NAME)			\
+  FROUTINE(CONCAT(my, f77name), CONCAT(MY, F77NAME))
 
 #  define PROF(COUNTER, FLOPS, CODE) {		\
     if(!tid) {					\
@@ -102,6 +108,16 @@
 #else
 #  define PROF(COUNTER, FLOPS, CODE) CODE
 #endif
+
+/**************************************************
+ *          Macro for debugging                   *
+ **************************************************/
+
+#define DBGPRINTF(__fmt, ...)			\
+  fprintf(stderr, "[file %s, line %d]: " __fmt,	\
+	  __FILE__, __LINE__, __VA_ARGS__)
+
+#define DBGERROR(__fmt, ...) DBGPRINTF("Error>> " __fmt "\n", __VA_ARGS__)
 
 /**************************************************
  *      Precision related definitions             *

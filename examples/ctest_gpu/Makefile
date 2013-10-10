@@ -12,9 +12,11 @@ TOP_DIR = ../..
 include ../../config.mk
 
 THIS_DIR = $(TOP_DIR)/examples/ctest_gpu
-TARGET   = test
 
+ifneq "$(MAGMA_PATH)" ""
+TARGET    = test
 SOURCES   = ctest.c
+endif
 
 INCLUDES += -I$(TOP_DIR) -I$(TOP_DIR)/include
 
@@ -24,8 +26,8 @@ CXXFLAGS += -DUSE_PROF  -DUSE_MAGMA $(LAPACK_CXXFLAGS) \
 CFLAGS   += -DUSE_MAGMA $(LAPACK_CXXFLAGS) \
 	$(CUDA_CXXFLAGS) $(MAGMA_CXXFLAGS) # $(DBG_CXXFLAGS) 
 
-LIBS     +=  -limf -lirc $(BSOFI_LIB) \
-	$(LAPACK_LIBFLAGS) $(CXXLIBS) $(CUDA_LIBFLAGS) $(MAGMA_LIBFLAGS)
+LIBS     +=  $(BSOFI_LIB) \
+	$(LAPACK_LIBFLAGS) $(CXXLIBS) $(CUDA_LIBFLAGS) $(MAGMA_LIBFLAGS) #-limf -lirc 
 
 HEADERS   = bench_bso.hpp gemm.hpp setup.hpp #$(wildcard $(TOP_DIR)/include/*.h)
 HEADERSXX = $(HEADERS) $(wildcard $(TOP_DIR)/include/*.hpp)
@@ -66,9 +68,12 @@ $(TARGET): $(OBJ)
 # $(addprefix $(THIS_DIR)/, $(OBJ))
 
 clean:
+ifneq "$(OBJ)" ""
 	$(RM) $(OBJ) 
+endif
+ifneq "$(TARGET)" ""
 	$(RM) $(addprefix $(THIS_DIR)/, *~ $(TARGET))
-
+endif
 install: $(TARGET)
 	$(MKDIR) $(INSTALL_DIR)
 	$(CP) $(TARGET) $(INSTALL_DIR)/$(TARGET)

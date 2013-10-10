@@ -59,30 +59,28 @@ int main(void)
 {
   int nnb = n*nb;
   scalar_t *A, *Ai;
-  scalar_t errGETRI, errBSOFIlapack, errBSOFImagma, errBSOFIhybrid;
+  /* scalar_t errGETRI, errBSOFIlapack, errBSOFImagma, errBSOFIhybrid; */
   timeval_t tim1, tim2;
   double t_inv;
-  double sgnBSOFIlapack = 0;
+  /* double sgnBSOFIlapack = 0; */
 
   /*************************************************************
    *
    *************************************************************/
   cublasHandle_t handle = 0;
 
-  scalar_t *tauBsofi, s;
-  int info, i;
+  scalar_t *tauBsofi/* , s */;
+  int info/* , i */;
   scalar_t *hW1 = 0; 
   scalar_t *dW = 0;
   int lw, lhw, ldw;
-  int Lswitch, Lswitch_min = 4, Lswitch_max = nb/2;
+  /* int Lswitch, Lswitch_min = 4, Lswitch_max = nb/2; */
 
   /*************************************************************
    * Init devices and space
    *************************************************************/
-  if( CUBLAS_STATUS_SUCCESS != cublasInit() ) {
-    fprintf(stderr, "ERROR: CUBLAS initialization failed\n");
-    exit(-1);
-  }
+
+  CUBLAS_INIT();
 
   lw       = lapackXbsofiLWork(n, nb, nnb);
   lhw      = hybridXbsofiLWork(n, nb, nnb, /* Lswitch_max, */ -1);
@@ -95,11 +93,11 @@ int main(void)
   CHECK_PTR(hW1      = malloc(lhw*sizeof(scalar_t)));
   CHECK_PTR(tauBsofi = malloc(nnb*sizeof(scalar_t)));
 
-  if (cudaSuccess != cudaMalloc( (void**) &dW, ldw*sizeof(scalar_t) )) {
-    fprintf( stderr, "CUDA: GPU device memory allocation failed\n");
-    exit(-1);
-  }
-
+#ifdef HAS_CUBLAS
+  CHECK_CUMALLOC(cudaMalloc( (void**) &dW, ldw*sizeof(scalar_t) ));
+#else
+  CHECK_PTR(dW = malloc(ldw*sizeof(scalar_t)));
+#endif
   /*************************************************************
    * Init matrix
    *************************************************************/
@@ -190,8 +188,13 @@ int main(void)
   free(tauBsofi);
   free(hW1);
 
+#ifdef HAS_CUBLAS
   cudaFree (dW);
-  cublasShutdown(); /* cublasDestroy(handle); */
+#else
+  free (dW);
+#endif
+
+  CUBLAS_FINALIZE();
 
   return 0;
 }

@@ -55,4 +55,7 @@ void lapackXcpyzero(char uplo, int m, int n,
 		    scalar_t A[], int lda, scalar_t B[], int ldb);
 void lapackXzero(char uplo, int m, int n, scalar_t A[], int lda);
 
+#define lapackXlaset lapackXlacpy
+#define lapackXlaget lapackXlacpy
+
 #endif
