@@ -52,8 +52,8 @@ void Init_DQMC_matrix(int n, int nb, scalar_t A[])
       }
 }
 
-#define n    1728 //1024  //1024//1728 ////512
-#define nb   10 //45   //45  //16//26 ////90
+#define n   1728  /* 1024 1024 1728 512 */
+#define nb  10    /* 45 45 16 26 90 */
 
 int main(void)
 {

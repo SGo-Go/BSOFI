@@ -42,9 +42,9 @@
 			__A, __lda, __B, __ldb), "cublasGetMatrix")
 
 #  ifdef __SINGLE_PREC__
-#    define cublasXgemm  cublasDgemm
-#  else
 #    define cublasXgemm  cublasSgemm
+#  else
+#    define cublasXgemm  cublasDgemm
 #  endif
 
 #else

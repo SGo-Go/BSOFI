@@ -15,7 +15,8 @@
 #include "third_party/cublas.h"
 
 #define GPU_ALIGN 64 /* 32 */
-#define GET_LD_DEV(__len) ((((__len) + (GPU_ALIGN)-1)/(GPU_ALIGN))*(GPU_ALIGN))
+#define GET_LD_DEV(__len) \
+  ((((__len) + (GPU_ALIGN)-1)/(GPU_ALIGN))*(GPU_ALIGN))
 
 #define IDX_OFFSET(__ld,__i, __j) ((__j)*(__ld) + __i)
 #define BLK_OFFSET(__ld,__i, __j) (n*((__j)*(__ld) + __i))
@@ -54,7 +55,8 @@ typedef struct _bsofi_profile_t {
     tim1 = getwalltime();				\
     {__code_do;}					\
     __total_time += elapsed(getwalltime(), tim1); }
-#  define RESET_BSOFI_PROFILE(__counter) __counter = (const struct _bsofi_profile_t){0}
+#  define RESET_BSOFI_PROFILE(__counter) \
+  __counter = (const struct _bsofi_profile_t){0}
 
 #else
 #  define BENCH_CUMMULATIVE(__total_time, __code_do) {__code_do;}
@@ -67,7 +69,8 @@ typedef struct _bsofi_profile_t {
 #  define CHECK_CUMALLOC(__code)					\
   if (cudaSuccess != (__code)) {					\
     DBGERROR("CUDA: GPU device memory allocation failed");		\
-    cudaFree(dwork); cublasShutdown();/* cublasDestroy(handle); */	\
+    /* cudaFree(dwork); */						\
+    cublasShutdown();/* cublasDestroy(handle); */			\
     return -1;								\
   }
 

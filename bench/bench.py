@@ -30,7 +30,7 @@ for implementation in implementations:
     # os.environ['MKL_NUM_THREADS'] = str(nthreads)
 
     for n in n_list:
-        ntests = 4*(1024/n) - 3
+        ntests = 44*(1024/n) - 3
         print     cmd_all.format(implement = implementation, ofolder = ofolder_local,
                                  nthreads=nthreads, ntests=ntests, blknum=L, blksize=n)
         os.system(cmd_all.format(implement = implementation, ofolder = ofolder_local,
