@@ -30,4 +30,6 @@ clean:
 	($(CD) $(TOP_DIR)/bench; $(MAKE) clean)
 
 allclean: clean
+	($(CD) $(TOP_DIR)/bench; $(MAKE) allclean)
 	$(RM) -R `find $(TOP_DIR) -name *~` $(TOP_DIR)/*.o
+	#$(RM) $(TOP_DIR)/config.mk

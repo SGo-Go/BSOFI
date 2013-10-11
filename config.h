@@ -117,11 +117,13 @@
   fprintf(stderr, "[file %s, line %d]: " __fmt,	\
 	  __FILE__, __LINE__, __VA_ARGS__)
 
+/* Valid for GCC, but doestn't work with ICC */
 /* #define DBGERROR(__fmt, ...) DBGPRINTF("Error>> " __fmt "\n", __VA_ARGS__) */
 
-#define DBGERROR(__fmt, ...)				\
-  fprintf(stderr, "Error[%s, l%d]: " __fmt "\n",	\
-	  __FILE__, __LINE__, __VA_ARGS__)
+#define DBGERROR(...)							\
+  fprintf(stderr, "Error[%s, l%d]: "					\
+	  __ARGS_FIRST__(__VA_ARGS__) "\n",				\
+	  __FILE__, __LINE__ __ARGS_REST__(__VA_ARGS__))
 
 /**************************************************
  *      Precision related definitions             *
@@ -137,7 +139,32 @@ typedef double scalar_t;
  *      Extra macro                               *
  **************************************************/
 
+/* Concatenation of names */
 #define CONCAT(STR1, STR2) CONCAT_NONMACRO(STR1, STR2)
 #define CONCAT_NONMACRO(STR1, STR2) STR1 ## STR2
+
+/* Expantion to the first argument in __VA_ARGS__
+ * If there's only one argument, expands to nothing.  
+ * If there is more than one argument, expands to a comma 
+ * followed by everything but the first argument.  
+ *
+ * This trick works equally well with GCC and ICC
+ * New macro: __VA_ARGS_FIRST__ and __VA_ARGS_REST__
+ * Attantion: we implement support up to 9 arguments!
+ * Based on:
+ * http://stackoverflow.com/questions/5588855/standard-alternative-to-gccs-va-args-trick
+ */
+#define __ARGS_FIRST__(...) __ARGS_GET_FIRST__(__VA_ARGS__, __throwaway)
+#define __ARGS_GET_FIRST__(__first, ...) __first
+
+#define __ARGS_REST__(...) __ARGS_GET_REST__(__ARGS_NUM__(__VA_ARGS__), __VA_ARGS__)
+#define __ARGS_GET_REST__(__qty, ...) __ARGS_PUT_NAMED__(__qty, __VA_ARGS__)
+#define __ARGS_PUT_NAMED__(__qty, ...) __ARGS_PUT_##__qty(__VA_ARGS__)
+#define __ARGS_PUT_ONE(__first)
+#define __ARGS_PUT_TWOORMORE(first, ...) , __VA_ARGS__
+#define __ARGS_NUM__(...)						\
+  __ARGS_SELECT_10TH__(__VA_ARGS__, TWOORMORE, TWOORMORE, TWOORMORE, TWOORMORE, \
+		       TWOORMORE, TWOORMORE, TWOORMORE, TWOORMORE, ONE, throwaway)
+#define __ARGS_SELECT_10TH__(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, ...) a10
 
 #endif

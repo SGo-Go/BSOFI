@@ -45,7 +45,6 @@ typedef struct _bsofi_profile_t {
   double sync;
 } bsofi_profile_t;
 
-#undef USE_PROF
 #ifdef USE_PROF
 
 #include <timer.h>
@@ -63,18 +62,18 @@ typedef struct _bsofi_profile_t {
 #endif
 
 #ifdef HAS_CUBLAS
-#  define CHECK_CUMALLOC(__code) __code
-
-/* #  define CHECK_CUMALLOC(__code)					\ */
-/*   if (cudaSuccess != (__code)) {					\ */
-/*     DBGERROR("CUDA: GPU device memory allocation failed");		\ */
-/*     cudaFree(dwork); cublasShutdown();/\* cublasDestroy(handle); *\/	\ */
-/*     return -1;								\ */
-/*   } */
+/* @TODO Fix issue with `if' in macro */
+/* #  define CHECK_CUMALLOC(__code) __code */
+#  define CHECK_CUMALLOC(__code)					\
+  if (cudaSuccess != (__code)) {					\
+    DBGERROR("CUDA: GPU device memory allocation failed");		\
+    cudaFree(dwork); cublasShutdown();/* cublasDestroy(handle); */	\
+    return -1;								\
+  }
 
 #  define CUBLAS_INIT()						\
   if( CUBLAS_STATUS_SUCCESS != cublasInit() ) {			\
-    fprintf(stderr, "ERROR: CUBLAS initialization failed\n");	\
+    DBGERROR("CUBLAS initialization failed");			\
     exit(-1);							\
   }
 

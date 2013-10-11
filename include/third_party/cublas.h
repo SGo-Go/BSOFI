@@ -19,15 +19,17 @@
 #  include <cuda_runtime.h>
 #  include <cublas.h>
 
-/* #  define HANDLE_CUBLAS_ERROR(__code, __message)			\ */
-/*   if (__code != CUBLAS_STATUS_SUCCESS) {				\ */
-/*     DBGERROR("CUBLAS error in " __message);				\ */
-/*     cudaFree(dwork); cublasShutdown();/\* cublasDestroy(handle); *\/	\ */
-/*     *info = -1;								\ */
-/*     return -1;								\ */
-/*   } */
+/* @TODO Fix issue with `if' in macro */
 
-#  define HANDLE_CUBLAS_ERROR(__code, __message) __code
+/* #  define HANDLE_CUBLAS_ERROR(__code, __message) __code */
+#  define HANDLE_CUBLAS_ERROR(__code, __message)			\
+  if (__code != CUBLAS_STATUS_SUCCESS) {				\
+    DBGERROR("CUBLAS error in " __message);				\
+    cudaFree(dwork); cublasShutdown();/* cublasDestroy(handle); */	\
+    *info = -1;								\
+    return -1;								\
+  }
+
 
 #  define cublasXlaset(__t, __m, __n, __A, __lda, __B, __ldb)		\
   HANDLE_CUBLAS_ERROR( cublasSetMatrix					\
