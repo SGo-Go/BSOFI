@@ -5,7 +5,7 @@
  * e-mail: sgogolenko@ucdavis.edu
  **********************************************************************
  * Description:
- *  Benchmark for pure CPU implementation of BSOF/I routines
+ *  Benchmark for CPU+GPU implementation of BSOF/I routines
  */
 
 #include "setup.h"
@@ -19,10 +19,11 @@
 #include <time.h>
 #include <timer.h>
 
-#include "bench_macro.h"
-#include "qmc.h"
-#include "options.h"
+#include <bench/bsofi_random.h>
+#include <bench/bench_macro.h>
 #include <bench/flops.h>
+
+#include "options.h"
 
 #ifndef MATR_INIT
 #  define MATR_INIT qmc_matr_init

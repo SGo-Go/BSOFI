@@ -11,6 +11,12 @@
 #ifndef __BSOFI_LAPACK_H__
 #define __BSOFI_LAPACK_H__
 
+/************************************************************
+ *  Wraps for LAPACK kernels
+ ************************************************************/
+#define lapackXlaset lapackXlacpy
+#define lapackXlaget lapackXlacpy
+
 void lapackXgemm(const char transa, const char transb, 
 		 int m, int n, int k, 
 		 scalar_t alpha, scalar_t a[], int lda, 
@@ -54,8 +60,5 @@ scalar_t lapackXlange(char norm, int m, int n,
 void lapackXcpyzero(char uplo, int m, int n,
 		    scalar_t A[], int lda, scalar_t B[], int ldb);
 void lapackXzero(char uplo, int m, int n, scalar_t A[], int lda);
-
-#define lapackXlaset lapackXlacpy
-#define lapackXlaget lapackXlacpy
 
 #endif

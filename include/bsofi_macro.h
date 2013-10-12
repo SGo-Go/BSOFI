@@ -63,8 +63,11 @@ typedef struct _bsofi_profile_t {
 #  define RESET_BSOFI_PROFILE(__counter) 
 #endif
 
+/************************************************************
+ *  CUDA initialization/finalization macro
+ ************************************************************/
+
 #ifdef HAS_CUBLAS
-/* @TODO Fix issue with `if' in macro */
 /* #  define CHECK_CUMALLOC(__code) __code */
 #  define CHECK_CUMALLOC(__code)					\
   if (cudaSuccess != (__code)) {					\
@@ -74,19 +77,70 @@ typedef struct _bsofi_profile_t {
     return -1;								\
   }
 
-#  define CUBLAS_INIT()						\
+#  define CUBLAS_INIT(__handle)					\
   if( CUBLAS_STATUS_SUCCESS != cublasInit() ) {			\
     DBGERROR("CUBLAS initialization failed");			\
     exit(-1);							\
   }
 
-#  define CUBLAS_FINALIZE()			\
+#  define CUBLAS_FINALIZE(__handle)		\
   cublasShutdown() /* cublasDestroy(handle); */
 
 #else
-#  define CUBLAS_INIT()
-#  define CUBLAS_FINALIZE()
+#  define CUBLAS_INIT(__handle)
+#  define CUBLAS_FINALIZE(__handle)
 #  define CHECK_CUMALLOC(__code) __code
 #endif
+
+/************************************************************
+ *  Workspace allocation/deallocation macro for CUBLAS codes
+ ************************************************************/
+#ifdef HAS_CUBLAS
+#  include <cuda_runtime.h>
+#  include <cublas.h>
+
+#  define CUBLAS_HOSTALLOC(__ptr, __type, __size)			\
+  if ( cudaSuccess !=							\
+       cudaMallocHost( (void**) &__ptr, (__size)*sizeof(__type) )) {	\
+    DBGERROR("CUDA pinned malloc failed for: %s", #__ptr );	\
+    exit(-1);							\
+  }
+
+#  define CUBLAS_HOSTFREE(__ptr)			\
+  cudaFreeHost( ptr );
+
+#  define CUBLAS_DEVALLOC(__ptr, __type, __size)			\
+  if ( cudaSuccess !=							\
+       cudaMalloc( (void**) &__ptr, (__size)*sizeof(__type) )) {	\
+    DBGERROR("CUDA device malloc failed for: %s", #__ptr );		\
+    exit(-1);								\
+  }
+
+#  define CUBLAS_DEVFREE(__ptr)			\
+  cudaFree( __ptr );
+
+#else
+/* #  define CUBLAS_HOSTALLOC(__ptr, __type, __size) LAPACK_MALLOC( __ptr, __type, __size ) */
+/* #  define CUBLAS_HOSTFREE (__ptr)             LAPACK_FREE(__ptr) */
+/* #  define CUBLAS_DEVALLOC (__ptr, __type, __size) LAPACK_MALLOC( __ptr, __type, __size ) */
+/* #  define CUBLAS_DEVFREE  (__ptr)             LAPACK_FREE(__ptr) */
+#  define CUBLAS_HOSTALLOC LAPACK_MALLOC
+#  define CUBLAS_HOSTFREE  LAPACK_FREE
+#  define CUBLAS_DEVALLOC  LAPACK_MALLOC
+#  define CUBLAS_DEVFREE   LAPACK_FREE
+#endif 
+
+/************************************************************
+ *  Workspace allocation/deallocation macro for LAPACK codes
+ ************************************************************/
+#include <stdlib.h>
+#define LAPACK_MALLOC(__ptr, __type, __size)			\
+  if ( 0 == (__ptr = malloc((__size)*sizeof(__type)))) {	\
+    DBGERROR("malloc failed for: %s", #__ptr );			\
+    exit(-1);							\
+  }
+
+#define LAPACK_FREE(__ptr)			\
+  free(__ptr);
 
 #endif
