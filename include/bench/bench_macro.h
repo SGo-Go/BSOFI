@@ -42,64 +42,21 @@
 /************************************************************
  *                  Benchmarking macro
  ************************************************************/
+#define BENCH_VARS_DEF					\
+  timeval_t start, end;					\
+  double cpu_perf, cpu_time, cpu_flops
+
 #define BENCH(__FLOPS, __CODE) {			\
     cpu_flops = (__FLOPS)/ 1e6;				\
     start = getwalltime();				\
     {__CODE;}						\
     end   = getwalltime();				\
     if (info != 0)					\
-      DBGPRINTF("returned error %d\n", (int) info);	\
+      DBGERROR("returned error %d", (int) info);	\
     cpu_time = elapsed(end, start);			\
     cpu_perf = cpu_flops / cpu_time;			\
     printf( FORMAT_PARAM,				\
 	    cpu_perf, cpu_flops, cpu_time);		\
   }
-
-/************************************************************
- *  Workspace allocation/deallocation macro for LAPACK codes
- ************************************************************/
-#define LAPACK_MALLOC( ptr, type, size )			\
-  if ( 0 == (ptr = malloc((size)*sizeof(type)))) {		\
-    DBGERROR("malloc failed for: %s\n", #ptr );			\
-    exit(-1);							\
-  }
-
-#define LAPACK_FREE(ptr)			\
-  free(ptr);
-
-/************************************************************
- *  Workspace allocation/deallocation macro for CUBLAS codes
- ************************************************************/
-#ifdef HAS_CUBLAS
-#  define CUBLAS_HOSTALLOC( ptr, type, size )				\
-  if ( cudaSuccess !=							\
-       cudaMallocHost( (void**) &ptr, (size)*sizeof(type) )) {		\
-    DBGERROR("CUDA pinned malloc failed for: %s\n", #ptr );	\
-    exit(-1);								\
-  }
-
-#  define CUBLAS_HOSTFREE(ptr)			\
-  cudaFreeHost( ptr );
-
-#  define CUBLAS_DEVALLOC( ptr, type, size )				\
-  if ( cudaSuccess !=							\
-       cudaMalloc( (void**) &ptr, (size)*sizeof(type) )) {		\
-    DBGERROR("CUDA device malloc failed for: %s\n", #ptr );		\
-    exit(-1);								\
-  }
-
-#  define CUBLAS_DEVFREE(ptr)			\
-  cudaFree( ptr );
-
-#else
-/* #  define CUBLAS_HOSTALLOC(__ptr, __type, __size) LAPACK_MALLOC( __ptr, __type, __size ) */
-/* #  define CUBLAS_HOSTFREE (__ptr)             LAPACK_FREE(__ptr) */
-/* #  define CUBLAS_DEVALLOC (__ptr, __type, __size) LAPACK_MALLOC( __ptr, __type, __size ) */
-/* #  define CUBLAS_DEVFREE  (__ptr)             LAPACK_FREE(__ptr) */
-#  define CUBLAS_HOSTALLOC LAPACK_MALLOC
-#  define CUBLAS_HOSTFREE  LAPACK_FREE
-#  define CUBLAS_DEVALLOC  LAPACK_MALLOC
-#  define CUBLAS_DEVFREE   LAPACK_FREE
-#endif 
 
 #endif /* TESTINGS_H */

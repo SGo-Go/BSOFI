@@ -125,15 +125,6 @@ void print_diag( int m, int n, scalar_t* A, int lda)
 }
 
 
-inline
-void lapackf77_copymatrix( int m, int n, scalar_t* A, int lda, scalar_t* hA, int ldha)
-{
-  int j, i; 
-  for (j = 0; j < n; j++)
-    for (i = 0; i < m; i++)
-      hA_IDX(i, j) = A_IDX(i, j);
-}
-
 #undef A_IDX
 #undef hA_IDX
 
