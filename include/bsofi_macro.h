@@ -107,7 +107,7 @@ typedef struct _bsofi_profile_t {
   }
 
 #  define CUBLAS_HOSTFREE(__ptr)			\
-  cudaFreeHost( ptr );
+  cudaFreeHost( __ptr );
 
 #  define CUBLAS_DEVALLOC(__ptr, __type, __size)			\
   if ( cudaSuccess !=							\

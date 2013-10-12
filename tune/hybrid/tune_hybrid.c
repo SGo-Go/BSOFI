@@ -49,9 +49,9 @@
     __code_init;					\
     cpu_flops = (__flops)/ 1e6;				\
     {__code_do;}					\
-    info = 0;						\
-    start = getwalltime();				\
-    for(i_bench = 0; i < (__repeats); i_bench++) {	\
+    info = 0;							\
+    start = getwalltime();					\
+    for(i_bench = 0; i_bench < (__repeats); i_bench++) {	\
       hA +=n; hB +=n; hC +=n; dA +=n; dB +=n; dC +=n;	\
       __code_do;					\
     }							\
@@ -59,7 +59,7 @@
     if (info != 0)					\
       DBGERROR("returned error %d", (int) info);	\
     cpu_time = elapsed(end, start)/(__repeats);		\
-    cpu_perf = cpu_flops / cpu_time;			\
+    cpu_perf = cpu_flops / cpu_time / 1e3;		\
     printf( TUNE_FORMAT_PARAM,				\
 	    cpu_perf, cpu_flops, cpu_time);		\
   }
@@ -69,24 +69,26 @@
 	      memcpy(hwork, work, lwork*sizeof(scalar_t)),	\
 	      __code)
 
-#define BENCH_GPU(__repeats, __flops, __code)			\
+#define BENCH_GPU(__repeats, __flops, __code)				\
   BENCH_TUNER(__repeats, __flops,					\
 	      {								\
 		cublasXlaset ('A',   N, 2*n, A, lda, dA,  ldda);	\
 		cublasXlaset ('A',   N, 2*n, B, lda, dB,  ldda);	\
 		cublasXlaset ('A',   N, 2*n, C, lda, dC,  ldda);	\
 		cublasXlaset ('A', 2*n, 2*n, Q, ldq, dQ,  lddq);	\
-	      }, {__code; cudaDeviceSynchronize();})
+	      }, {							\
+		cudaDeviceSynchronize();				\
+		__code;							\
+		cudaDeviceSynchronize();})
 
-
-int process(int threads, int tests, int n_last, int L)
+int process(int n_first, int n_last, int n_step, int L)
 {
   BENCH_VARS_DEF;
  
   cublasHandle_t handle = 0;
   int i, info/* , bench_repeats */;
 
-  int n_first, n_step;
+  /* int n_first, n_step; */
   int n;
   int N; 
   int lda, ldda, ldq, lddq;
@@ -102,9 +104,9 @@ int process(int threads, int tests, int n_last, int L)
   /************************************************************
    *             Define matrix sizes for benchmarking
    ************************************************************/
-  n_step   = 128;
-  n_last   = n_last > 0 ? n_last : 1024;
-  n_first  = n_last - tests - 1;
+  /* n_step   = 128; */
+  /* n_last   = n_last > 0 ? n_last : 1024; */
+  /* n_first  = n_last - tests - 1; */
 
   /*************************************************************
    *                        Init device
@@ -115,8 +117,7 @@ int process(int threads, int tests, int n_last, int L)
   /************************************************************
    *             Query for Lapack workspace size
    ************************************************************/
-  n = n_last;
-  /* L     = 7; */
+  n     = n_last;
   N     = MAXN;
   lda   = N;
   ldda  = GET_LD_DEV(N);
@@ -154,6 +155,8 @@ int process(int threads, int tests, int n_last, int L)
   /************************************************************
    *              Title string in tabular output
    ************************************************************/
+  /* printf("\n!!%4d:%4d:%3d \n", n_first, n_last, n_step); */
+
   printf(TUNE_FORMAT_TITLE_SIZE);
   printf(TUNE_FORMAT_TITLE_PARAM(CPU_GEMM)"     ");
   printf(TUNE_FORMAT_TITLE_PARAM(CPU_GEMM2)"    ");
@@ -198,14 +201,16 @@ int process(int threads, int tests, int n_last, int L)
 
     /* ("   "(GPU_GEMM)"     "); */
     BENCH_GPU(L, (FLOPS_DGEMM((double)n, (double)n, (double)n)),
-	      cublasXgemm ('N', 'N', n, n, n, 1, 
-			   dA, ldda, dB, ldda, 0, dC, ldda);
-	      cublasXlaget('A', n, n, dC, ldda, hC, lda));
+    	      cublasXgemm ('N', 'N', n, n, n, 1,
+    			   dA, ldda, dB, ldda, 0, dC, ldda);
+	      cudaDeviceSynchronize();
+    	      cublasXlaget('A', n, n, dC, ldda, hC, lda));
 
     /* ("   "(GPU_GEMM2)"    "); */
     BENCH_GPU(L, (FLOPS_DGEMM((double)n, (double)2*n, (double)n)),
     	      cublasXgemm('N', 'T', n, 2*n, n, 1,
     			  dA, ldda, dQ + n*lddq, lddq, 1, dC, ldda);
+	      cudaDeviceSynchronize();
     	      cublasXlaget('A', n, n, dC + n*ldda, ldda, hA + n*lda, lda));
 
     /* ("   "(CPU_TRMML)"    "); */

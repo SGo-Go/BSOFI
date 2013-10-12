@@ -24,7 +24,7 @@
 
 /* #  define HANDLE_CUBLAS_ERROR(__code, __message) __code */
 #  define HANDLE_CUBLAS_ERROR(__code, __message)			\
-  if (__code != CUBLAS_STATUS_SUCCESS) {				\
+  if ((__code) != CUBLAS_STATUS_SUCCESS) {				\
     DBGERROR("CUBLAS error in " __message);				\
     cudaFree(dwork); cublasShutdown();/* cublasDestroy(handle); */	\
     *info = -1;								\
@@ -32,14 +32,16 @@
   }
 
 #  define cublasXlaset(__t, __m, __n, __A, __lda, __B, __ldb)		\
-  HANDLE_CUBLAS_ERROR( cublasSetMatrix					\
-		       (__m, __n, sizeof(scalar_t),			\
-			__A, __lda, __B, __ldb), "cublasSetMatrix")
+  cublasSetMatrix(__m, __n, sizeof(scalar_t), __A, __lda, __B, __ldb)
+  /* HANDLE_CUBLAS_ERROR( cublasSetMatrix					\ */
+  /* 		       (__m, __n, sizeof(scalar_t),			\ */
+  /* 			__A, __lda, __B, __ldb), "cublasSetMatrix") */
 
 #  define cublasXlaget(__t, __m, __n, __A, __lda, __B, __ldb)		\
-  HANDLE_CUBLAS_ERROR( cublasGetMatrix					\
-		       (__m, __n, sizeof(scalar_t),			\
-			__A, __lda, __B, __ldb), "cublasGetMatrix")
+  cublasGetMatrix(__m, __n, sizeof(scalar_t), __A, __lda, __B, __ldb)
+  /* HANDLE_CUBLAS_ERROR( cublasGetMatrix					\ */
+  /* 		       (__m, __n, sizeof(scalar_t),			\ */
+  /* 			__A, __lda, __B, __ldb), "cublasGetMatrix") */
 
 #  ifdef __SINGLE_PREC__
 #    define cublasXgemm  cublasSgemm

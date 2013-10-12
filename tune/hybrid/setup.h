@@ -12,7 +12,7 @@
 #define __SETUP_HPP__
 
 /** Maximal value of N = L*n in tuning benchmarks */
-#define  MAXN (5*1024)
+#define  MAXN (5*2048)
 
 /** Output control: report or console (console is default) */
 #define  MAKE_BENCH_REPORT

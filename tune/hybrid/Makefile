@@ -16,7 +16,7 @@ TARGET   = tune
 SOURCES   =  tune_hybrid.c
 CXXFLAGS += #-DUSE_PROF
 
-INCLUDES += -I$(TOP_DIR) -I$(TOP_DIR)/bench/include -I$(TOP_DIR)/include
+INCLUDES += -I$(TOP_DIR) -I$(TOP_DIR)/tune/include -I$(TOP_DIR)/include
 CXXFLAGS += $(LAPACK_CXXFLAGS) $(CUDA_CXXFLAGS)
 CFLAGS   += $(LAPACK_CXXFLAGS) $(CUDA_CFLAGS) #$(CUDA_CXXFLAGS)
 
