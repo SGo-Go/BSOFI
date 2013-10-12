@@ -9,7 +9,7 @@
 
 #!/bin/bash
 
-SYSTEM=$1
+SYSTEM=${1:-`uname -n`}
 TOP_DIR=`echo "${PWD}" | sed -e 's/\//@/g'`
 
 cat ./config.mk.template | \
