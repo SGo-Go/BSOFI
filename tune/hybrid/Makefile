@@ -21,9 +21,9 @@ CXXFLAGS += $(LAPACK_CXXFLAGS) $(CUDA_CXXFLAGS)
 CFLAGS   += $(LAPACK_CXXFLAGS) $(CUDA_CFLAGS) #$(CUDA_CXXFLAGS)
 
 LIBS     += $(BSOFI_LIB) $(LAPACK_LIBFLAGS) \
-	$(CUDA_LIBFLAGS) $(MAGMA_LIBFLAGS) #$(CXXLIBS)
+	$(CUDA_LIBFLAGS) #$(CXXLIBS)
 
-HEADERS   = setup.h $(wildcard $(TOP_DIR)/tune/include/*.h) $(wildcard $(TOP_DIR)/include/bench/*.h)
+HEADERS   = setup.h $(wildcard $(TOP_DIR)/tune/include/*.h) #$(wildcard $(TOP_DIR)/include/bench/*.h)
 HEADERSXX = $(HEADERS) #$(wildcard $(TOP_DIR)/include/*.hpp)
 
 include $(TOP_DIR)/config/makefile-general-rules.mk

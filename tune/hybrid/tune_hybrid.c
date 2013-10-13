@@ -13,14 +13,14 @@
 
 #include <bsofi.h>
 #include <third_party/lapack.h>
+#include <third_party/cublas.h>
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 #include <timer.h>
 
 #include <bench/flops.h>
-#include <bench/bench_macro.h>
+//#include <bench/bench_macro.h>
 #include <bench/bsofi_random.h>
 #include "options.h"
 
@@ -60,7 +60,7 @@
       DBGERROR("returned error %d", (int) info);	\
     cpu_time = elapsed(end, start)/(__repeats);		\
     cpu_perf = cpu_flops / cpu_time / 1e3;		\
-    printf( TUNE_FORMAT_PARAM,				\
+    MESSAGE( TUNE_FORMAT_PARAM,				\
 	    cpu_perf, cpu_flops, cpu_time);		\
   }
 
@@ -155,22 +155,21 @@ int process(int n_first, int n_last, int n_step, int L)
   /************************************************************
    *              Title string in tabular output
    ************************************************************/
-  /* printf("\n!!%4d:%4d:%3d \n", n_first, n_last, n_step); */
 
-  printf(TUNE_FORMAT_TITLE_SIZE);
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_GEMM)"     ");
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_GEMM2)"    ");
-  printf(TUNE_FORMAT_TITLE_PARAM(GPU_GEMM)"     ");
-  printf(TUNE_FORMAT_TITLE_PARAM(GPU_GEMM2)"    ");
+  MESSAGE(TUNE_FORMAT_TITLE_SIZE);
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_GEMM)"     ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_GEMM2)"    ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(GPU_GEMM)"     ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(GPU_GEMM2)"    ");
 
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_TRMML)"    ");
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_TRMMR)"    ");
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_TRTRI)"    ");
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_TRTRI2)"   ");
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_GEQRF)"    ");
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_ORGQR)"    ");
-  printf(TUNE_FORMAT_TITLE_PARAM(CPU_ORMQR)"    ");
-  printf("\n");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_TRMML)"    ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_TRMMR)"    ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_TRTRI)"    ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_TRTRI2)"   ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_GEQRF)"    ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_ORGQR)"    ");
+  MESSAGE(TUNE_FORMAT_TITLE_PARAM(CPU_ORMQR)"    ");
+  MESSAGE("\n");
 
   /************************************************************
    *  Iterations over deffierent sizes of p-cyclic matrices
@@ -184,7 +183,7 @@ int process(int n_first, int n_last, int n_step, int L)
       work[i] = (scalar_t)rand()/(scalar_t)RAND_MAX;
 
     L = N/n - 1;
-    printf(TUNE_FORMAT_SIZE, n, L);
+    MESSAGE(TUNE_FORMAT_SIZE, n, L);
 
     /********************* CPU+GPU bench ************************/
     memcpy(hwork, work, lwork*sizeof(scalar_t));
@@ -243,7 +242,7 @@ int process(int n_first, int n_last, int n_step, int L)
 			   hA, lda, tau, hB, lda, hQ, 2*n*ldq, &info));
 
 
-    printf( "\n" );
+    MESSAGE( "\n" );
     fflush(stdout);
   }
 

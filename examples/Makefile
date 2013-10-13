@@ -11,9 +11,15 @@
 TOP_DIR = ..
 include ../config.mk
 
-.PHONY  : clean install all lib examples ctest ftest_hybrid ftest_cpu ctest_gpu
+SUBFOLDERS  = ctest ctest_gpu
 
-all: ctest ftest_cpu ftest_hybrid ctest_gpu
+ifneq "$(FC)" ""
+SUBFOLDERS += ftest_cpu ftest_hybrid 
+endif
+
+.PHONY  : clean install all lib examples $(SUBFOLDERS)
+
+all: $(SUBFOLDERS)
 
 ctest:
 	($(CD) ./ctest; $(MAKE))
@@ -21,15 +27,19 @@ ctest:
 ctest_gpu:
 	($(CD) ./ctest_gpu; $(MAKE))
 
+ifneq "$(FC)" ""
 ftest_hybrid:
 	($(CD) ./ftest_hybrid; $(MAKE))
 
 ftest_cpu:
 	($(CD) ./ftest_cpu; $(MAKE))
+endif
 
 clean:
 	($(CD) ./ctest; $(MAKE) clean)
 	($(CD) ./ctest_gpu; $(MAKE) clean)
+ifneq "$(FC)" ""
 	($(CD) ./ftest_hybrid; $(MAKE) clean)
 	($(CD) ./ftest_cpu; $(MAKE) clean)
+endif
 	$(RM) ./*~

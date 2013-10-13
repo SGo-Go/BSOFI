@@ -26,7 +26,7 @@ MKDIR  = mkdir -p
 RM     = rm -f 
 
 
-FLIBS          = $(if $(filter $(FC),  gfortran), -lgfortran, -lg2c)
+FLIBS          = $(if $(filter $(FC),  g77), -lg2c, -lgfortran)
 CLIBS          = -lc
 CXXLIBS        = -lstdc++ 
 
