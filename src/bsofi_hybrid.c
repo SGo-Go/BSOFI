@@ -25,22 +25,23 @@
  *   This implementation of get_lk assumes static load balancing 
  *   between host and device 
  */
-int get_lk(int k, int L) /* const  */
+int get_lk(int k, int L, double kappa_Q, int ck1) /* const  */
 {
   double lk;
   /* if(k*(KAPPA_Q + 2) <= KAPPA_Q*L - 2) */
   /*   lk = (L + k + 2.)/(1. + KAPPA_Q); */
   /* else */
   /*   lk = (L + 0.5*KAPPA_Q*(L - k) + 1.)/(1. + KAPPA_Q); */
-  lk = (KAPPA_Q*L - 2.)/(KAPPA_Q + 2.);
+  lk = (kappa_Q*L - 2.)/(kappa_Q + 2.) - ck1;
   if(lk < 0) lk = 0; 
   else if (lk > L) lk = L;
   return (int)(lk + 0.5);
 }
 
-int get_li(int i, int L) /* const  */
+
+int get_li(int i, int L, double kappa_R) /* const  */
 {
-  double li = (L - i + 1.)/(1. + KAPPA_R);
+  double li = (L - i + 1.)/(1. + kappa_R);
   if(li < 0) li = 0; 
   else if (li > L - i - 3) li = L - i - 3;
   return (int)(li + 0.5);
@@ -157,7 +158,8 @@ int hybridXbsoftri(cublasHandle_t handle, int n, int L,
   scalar_t *dW;
 
   /* Get maximum value of l_switch for inversion */
-  l_switch = get_li(0, L); /* L*Fswitch/1000; if(l_switch > L-3) l_switch = L-3; */
+  double kappa_R = GET_KAPPA_R(n);
+  l_switch = get_li(0, L, kappa_R); /* L*Fswitch/1000; if(l_switch > L-3) l_switch = L-3; */
 
   dXarg  = dwork                   - (L - l_switch - 1)*n*lddx;
   dXprod = dwork + lddx*n*l_switch - (L - l_switch - 1)*n*lddx;
@@ -205,7 +207,7 @@ int hybridXbsoftri(cublasHandle_t handle, int n, int L,
 
       l_switch_prev = 0;
       for(i = L - 4; i >= 0; i--) {
-	l_switch = get_li(i, L); /* l_switch = ((L - i)*Fswitch)/1000; if(l_switch > L-i-3) l_switch = L-i-3; */
+	l_switch = get_li(i, L, kappa_R); /* l_switch = ((L - i)*Fswitch)/1000; if(l_switch > L-i-3) l_switch = L-i-3; */
 	if(l_switch > l_switch_prev) {
 	  BENCH_CUMMULATIVE(profHybridBSOFTRI.memset, cublasXlaset ('A', n, n*(l_switch - l_switch_prev), 
 								    A_BLK(i+1, L-1 - l_switch), lda, 
@@ -291,7 +293,9 @@ int hybridXbsoi(cublasHandle_t handle, int n, int L,
 {
   RESET_BSOFI_PROFILE(profHybridBSOI);
 
-  int k_switch = get_lk(0,L);
+  double kappa_Q = GET_KAPPA_Q(n);
+  int ck1 = GET_Ck1(n);
+  int k_switch = get_lk(0,L, kappa_Q, ck1);
   /* printf("\n\n%d\n\n", k_switch); */
 
   /* cublasStatus_t stat = 0; */

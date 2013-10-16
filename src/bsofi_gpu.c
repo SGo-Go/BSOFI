@@ -445,7 +445,6 @@ void gpuXzero_gpu(char uplo, int m, int n,
   int j, i; 
   switch(uplo) {
   case 'L':
-    //DBG("!!!" << dA_IDX_OFFSET(1,1));
     for (j = 0; j < n-1; j++)
       info = cudaMemset(dA + dA_IDX_OFFSET(j+1,j), 0x00, (m - j - 1)*sizeof(double));
     break;

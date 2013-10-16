@@ -24,7 +24,7 @@ ifneq "$(MAGMA_PATH)" ""
 SOURCES  += bsofi_gpu.c 
 endif
 
-INCLUDES += -I$(TOP_DIR) -I$(TOP_DIR)/include
+INCLUDES += -I$(TOP_DIR) -I$(TOP_DIR)/include -I$(TOP_DIR)/config/include
 CFLAGS   += $(LAPACK_CXXFLAGS) \
 	$(CUDA_CXXFLAGS) $(MAGMA_CXXFLAGS) # $(DBG_CXXFLAGS) 
 
