@@ -10,6 +10,13 @@
 
 #include <stdio.h>
 
+FILE * pFile;
+#define MESSAGE(...)				\
+  fprintf(pFile, __VA_ARGS__)
+
+#define MSGFLUSH(...)				\
+  fflush(pFile)
+
 #define MAX_TEST 20
 int sizen[MAX_TEST];
 const int ntest = 12;
@@ -18,8 +25,11 @@ int process(int threads, int tests, int n, int L);
 
 int main(int argc, char** argv)
 {
+  int bUseFile = 0, ret_val = 0;
   int n = 0, L = 10, i;
   int nthreads = 0, tests = 0;
+
+  pFile = stdout; 
 
   int k = 8;
   for(i = 0; i < MAX_TEST; i++, k+=2)
@@ -35,7 +45,11 @@ int main(int argc, char** argv)
 	tests = atoi(argv[++i]);
       else if(strcmp("-p", argv[i])==0)
 	nthreads = atoi(argv[++i]);
-    }
+      else if(strcmp("-f", argv[i])==0) {
+	pFile = fopen (argv[++i],"w");
+	bUseFile = 1;
+      }
+    } 
 
     if      (n>0 && !tests ) {sizen[0] = n; tests = 1; }
     else if (n>0 && tests>0) {
@@ -62,5 +76,7 @@ int main(int argc, char** argv)
   if(nthreads == 0) nthreads = 4; 
   if(tests    == 0) tests = 2;
 
-  return process(nthreads, tests, n, L);
+  ret_val = process(nthreads, tests, n, L);
+  if(bUseFile) fclose(pFile);
+  return ret_val;
 }

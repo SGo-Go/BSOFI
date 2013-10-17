@@ -101,15 +101,15 @@ int process(int threads, int tests, int n_process, int L_first)
   /************************************************************
    *              Title string in tabular output
    ************************************************************/
-  printf(FORMAT_TITLE_SIZE"      "      );
-  printf(FORMAT_TITLE_PARAM(BSOFTRI_HYB)"    ");
-  printf(FORMAT_TITLE_PARAM(BSOI_HYB)"     ");
+  MESSAGE(FORMAT_TITLE_SIZE"      "      );
+  MESSAGE(FORMAT_TITLE_PARAM(BSOFTRI_HYB)"    ");
+  MESSAGE(FORMAT_TITLE_PARAM(BSOI_HYB)"     ");
 #ifdef BENCH_CPU_BSOFI
-  printf(FORMAT_TITLE_PARAM(BSOF)"     ");
-  printf(FORMAT_TITLE_PARAM(BSTRI)"    ");
-  printf(FORMAT_TITLE_PARAM(BSOI)"     ");
+  MESSAGE(FORMAT_TITLE_PARAM(BSOF)"     ");
+  MESSAGE(FORMAT_TITLE_PARAM(BSTRI)"    ");
+  MESSAGE(FORMAT_TITLE_PARAM(BSOI)"     ");
 #endif
-  printf("\n");
+  MESSAGE("\n");
 
   /************************************************************
    *  Iterations over deffierent sizes of p-cyclic matrices
@@ -120,7 +120,7 @@ int process(int threads, int tests, int n_process, int L_first)
 
     /********************** Init ********************************/
     MATR_INIT(n, L, A, lda);
-    printf( FORMAT_SIZE "  ", n, L);
+    MESSAGE( FORMAT_SIZE "  ", n, L);
 
     /********************* CPU bench ****************************/
 #ifdef BENCH_CPU_BSOFI
@@ -160,8 +160,8 @@ int process(int threads, int tests, int n_process, int L_first)
 	  hybridXbsoi (handle, n, L, A, lda, tau, 
 		       work, lwork, dwork, ldwork,/* L_frac,  */ &info));
 
-    printf( "\n" );
-    fflush(stdout);
+    MESSAGE( "\n" );
+    MSGFLUSH();
   }
 
   /************************************************************
