@@ -20,7 +20,7 @@
 
 /** Control if CPU routines benchmarking */
 /* #define  BENCH_CPU_BSOFI */
-/* #undef   BENCH_CPU_BSOFI   */
+#undef   BENCH_CPU_BSOFI
 
 /** Choice of BSOI routine implementation (Attention: Use only one!) */
 #define  BENCH_BSOI_ORMQR

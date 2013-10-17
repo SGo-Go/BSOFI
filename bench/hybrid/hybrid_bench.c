@@ -91,12 +91,17 @@ int process(int threads, int tests, int n_process, int L_first)
   /************************************************************
    *                   Allocate memory 
    ************************************************************/
-  LAPACK_MALLOC(     A,   scalar_t,    N * lda);
+  CUBLAS_HOSTALLOC(    hA,   scalar_t,    N * lda );
+  CUBLAS_DEVALLOC ( dwork,   scalar_t,    ldwork  );
+
   LAPACK_MALLOC(   tau,   scalar_t,    N      );
   LAPACK_MALLOC(  work,   scalar_t,    lwork  );
 
-  CUBLAS_HOSTALLOC(    hA,   scalar_t,    N * lda );
-  CUBLAS_DEVALLOC ( dwork,   scalar_t,    ldwork  );
+#ifdef BENCH_CPU_BSOFI
+  LAPACK_MALLOC(     A,   scalar_t,    N * lda);
+#else
+  A = hA;
+#endif  
 
   /************************************************************
    *              Title string in tabular output
@@ -151,7 +156,9 @@ int process(int threads, int tests, int n_process, int L_first)
 #endif
 
     /********************* CPU+GPU bench ************************/
+#ifdef BENCH_CPU_BSOFI
     lapackXlacpy('A', N, N, A, lda, hA, lda);
+#endif  
     BENCH((FLOPS_BSOFTRI((double)n, (double)L)),
 	  hybridXbsoftri (handle, n, L, hA, lda, tau,
 			  work, lwork, dwork, ldwork,/* L_frac,  */ &info));
@@ -167,7 +174,9 @@ int process(int threads, int tests, int n_process, int L_first)
   /************************************************************
    *                    Memory clean up
    ************************************************************/
+#ifdef BENCH_CPU_BSOFI
   LAPACK_FREE(    A    );
+#endif  
   LAPACK_FREE(   tau   );
   LAPACK_FREE(   work  );
 
