@@ -55,7 +55,7 @@
       DBGERROR("returned error %d", (int) info);	\
     cpu_time = elapsed(end, start);			\
     cpu_perf = cpu_flops / cpu_time;			\
-    printf( FORMAT_PARAM,				\
+    MESSAGE( FORMAT_PARAM,				\
 	    cpu_perf, cpu_flops, cpu_time);		\
   }
 

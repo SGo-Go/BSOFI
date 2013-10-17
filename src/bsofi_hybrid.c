@@ -317,8 +317,9 @@ int hybridXbsoi(cublasHandle_t handle, int n, int L,
   scalar_t *dQ       = dwork;
   scalar_t *hWbottom = dwork + 2*n*lddq;
   scalar_t *hRbottom = dwork + 2*n*lddq + 2*n*lhwbottom;
-
   scalar_t *houtAbottom;
+
+  /* printf("\n%d %d\n", lhwtop,lhwbottom); */
 
   if(lwork == -1) {
     lapackXorgqr  (2*n, 2*n, 2*n, Q, ldq, tau, work, -1, info);
@@ -338,8 +339,10 @@ int hybridXbsoi(cublasHandle_t handle, int n, int L,
   BENCH_CUMMULATIVE(profHybridBSOI.gpu,    cublasXgemm   ('N', 'T', n*(L-k_switch), 2*n, 2*n, 1, hWbottom, lhwbottom, dQ, lddq, 0, hRbottom, lhwbottom));
   BENCH_CUMMULATIVE(profHybridBSOI.memget, cublasXlaget  ('A', n*(L-k_switch), n, hRbottom + BLK_OFFSET(lhwbottom, 0, 1), lhwbottom, A_BLK(k_switch,L-1), lda));
 
-  BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A', n*k_switch, 2*n, A_BLK(0,L-2), lda, hWtop,  lhwtop));
-  BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', n*(k_switch),   2*n, 2*n, 1, hWtop,  lhwtop,  Q, ldq, 0, A_BLK(0,L-2), lda));
+  if(lhwtop > 0) {
+    BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A', n*k_switch, 2*n, A_BLK(0,L-2), lda, hWtop,  lhwtop));
+    BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', n*(k_switch),   2*n, 2*n, 1, hWtop,  lhwtop,  Q, ldq, 0, A_BLK(0,L-2), lda));
+}
 
   for(i = L-3; i >= 0; i--) {
     tau -=n;
@@ -361,8 +364,10 @@ int hybridXbsoi(cublasHandle_t handle, int n, int L,
 							      hWbottom + BLK_OFFSET(lhwbottom, 0, 1), lhwbottom,
 							      dQ, lddq, 1, hRbottom, lhwbottom));
 
-      BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A',      k_switch*n, 2*n, A_BLK(0, i), lda, hWtop, lhwtop));
-      BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', k_switch*n, 2*n, 2*n, 1, hWtop, lhwtop, Q, ldq, 0, A_BLK(0, i), lda));
+      if(lhwtop > 0) {
+	BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A',      k_switch*n, 2*n, A_BLK(0, i), lda, hWtop, lhwtop));
+	BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', k_switch*n, 2*n, 2*n, 1, hWtop, lhwtop, Q, ldq, 0, A_BLK(0, i), lda));
+      }
 
     } else {
       BENCH_CUMMULATIVE(profHybridBSOI.memset, cublasXlaset  ('A', 2*n, n, Q + BLK_OFFSET(ldq, 0, 1), ldq, dQ + BLK_OFFSET(lddq, 0, 1),  lddq));
@@ -370,13 +375,17 @@ int hybridXbsoi(cublasHandle_t handle, int n, int L,
 							      hWbottom + BLK_OFFSET(lhwbottom, 0, 0), lhwbottom, 
 							      dQ + BLK_OFFSET(lddq, 0, 1), lddq, 0, hRbottom, lhwbottom));
 
-      BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A', (i+1)*n,      2*n, A_BLK(0, i), lda, hWtop, lhwtop));
-      BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', (i+1)*n, 2*n, 2*n, 1, hWtop, lhwtop, Q, ldq, 0, A_BLK(0, i), lda));
+      if(lhwtop > 0) {
+	BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A', (i+1)*n,      2*n, A_BLK(0, i), lda, hWtop, lhwtop));
+	BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', (i+1)*n, 2*n, 2*n, 1, hWtop, lhwtop, Q, ldq, 0, A_BLK(0, i), lda));
+      }
       if(i + 1 < k_switch) {
-      	BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A', (k_switch - (i+1))*n, n, A_BLK(i+1, i+1), lda, 
-								hWtop + BLK_OFFSET(lhwtop, i+1, 1), lhwtop));
-      	BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', (k_switch - (i+1))*n, 2*n, n, 1,
-								hWtop + BLK_OFFSET(lhwtop,i+1, 1), lhwtop, Q + n*ldq, ldq, 0, A_BLK(i+1, i), lda));
+	if(lhwtop > 0) {
+	  BENCH_CUMMULATIVE(profHybridBSOI.memcpu, lapackXlacpy  ('A', (k_switch - (i+1))*n, n, A_BLK(i+1, i+1), lda, 
+								  hWtop + BLK_OFFSET(lhwtop, i+1, 1), lhwtop));
+	  BENCH_CUMMULATIVE(profHybridBSOI.cpu,    lapackXgemm   ('N', 'T', (k_switch - (i+1))*n, 2*n, n, 1,
+								  hWtop + BLK_OFFSET(lhwtop,i+1, 1), lhwtop, Q + n*ldq, ldq, 0, A_BLK(i+1, i), lda));
+	}
       }
 
     }
