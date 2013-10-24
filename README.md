@@ -30,7 +30,7 @@ of block p-cyclic matrices on CPU+GPU platforms.
 * To  **CALL** BSOF/I subroutines in own codes, see examples 
   *ftest_hybrid.f90*, *ftest_cpu.f90* (Fortran) and *ctest.c* (C/C++).  
   The general scheme for Fortran is shown below
-
+`
     integer  :: nnb, lw
     integer  ::handler(10)
     
@@ -46,9 +46,9 @@ of block p-cyclic matrices on CPU+GPU platforms.
     call hybridXbsoiH(handler, n, nb, A, nnb, tauBsofi, W1, lw, info)
     
     ! Shutdown device and deallocate GPU memory
-    call hybridXfinalizeH(handler)
+    call hybridXfinalizeH(handler)`
 
-For more INFORMATION, please refer to the technical report:
+For more **INFORMATION**, please refer to the technical report:
 
 * Sergiy Gogolenko and Zhaojun Bai
 [A Structured Orthogonal Inversion of Block 
