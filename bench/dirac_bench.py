@@ -49,31 +49,31 @@ def call_minimalistic():
     job_script_handle.close()
     os.system(r"qsub -S /bin/bash %s" % job_file)
 
-############################################################
-def call_modern():
-    """
-    Implementation of job running 
-    for Python version >= 2.5
-    """
-    cmd_format = r"./bench/{implement}/bench -t {ntests} -n {blksize} -L {blknum}" \
-        " -f {ofolder}/{blksize:04d}_{nthreads:02d}.blk"
-    job_file_format = r"{ofolder}/{platform}{blksize:04d}.job"
-    job_template_format = r"config/jobs/{platform}.sh.in"
+# ############################################################
+# def call_modern():
+#     """
+#     Implementation of job running 
+#     for Python version >= 2.5
+#     """
+#     cmd_format = r"./bench/{implement}/bench -t {ntests} -n {blksize} -L {blknum}" \
+#         " -f {ofolder}/{blksize:04d}_{nthreads:02d}.blk"
+#     job_file_format = r"{ofolder}/{platform}{blksize:04d}.job"
+#     job_template_format = r"config/jobs/{platform}.sh.in"
 
-    ntests = Lmax*(1024/n) - 3
-    cmd = cmd_format.format(implement = implementation, 
-                         ofolder = ofolder_local,
-                         nthreads=nthreads, ntests=ntests, 
-                         blknum=L, blksize=n)
-    with open(job_template_format.format(platform=platform), "r") as job_template_handle:
-        job_script = job_template_handle.read()
-    job_script = job_script.replace(r"@cmd@", cmd)
-    # print job_script
-    job_file = job_file_format.format(ofolder = ofolder_local, 
-                                      platform = platform, blksize = n)
-    with open(job_file, "w") as job_script_handle:
-        job_script_handle.write(job_script)
-    os.system(r"qsub -S /bin/bash %s" % job_file)
+#     ntests = Lmax*(1024/n) - 3
+#     cmd = cmd_format.format(implement = implementation, 
+#                          ofolder = ofolder_local,
+#                          nthreads=nthreads, ntests=ntests, 
+#                          blknum=L, blksize=n)
+#     with open(job_template_format.format(platform=platform), "r") as job_template_handle:
+#         job_script = job_template_handle.read()
+#     job_script = job_script.replace(r"@cmd@", cmd)
+#     print job_script
+#     job_file = job_file_format.format(ofolder = ofolder_local, 
+#                                       platform = platform, blksize = n)
+#     with open(job_file, "w") as job_script_handle:
+#         job_script_handle.write(job_script)
+#     os.system(r"qsub -S /bin/bash %s" % job_file)
 
 ############################################################ 
 # Cycle over commands to run
