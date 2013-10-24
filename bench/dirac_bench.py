@@ -17,11 +17,11 @@ import os
 ############################################################
 
 L    = 4
-Lmax = 44
-n_list = (1024, 512, 256)
+Lmax = 20
+n_list = (1024,)# 512, 256)
 nthreads = 12
 implementations = ('hybrid',)# 'cpu')
-platform = 'dirac_fermi'
+platform = 'dirac_tesla' #'dirac_fermi'
 
 ofolder = r"./results/%s" % platform
 
