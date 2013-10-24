@@ -47,7 +47,7 @@ def call_minimalistic():
     job_script_handle = open(job_file, "w")
     job_script_handle.write(job_script)
     job_script_handle.close()
-    #os.system(r"qsub -S /bin/bash %s" % job_file)
+    os.system(r"qsub -S /bin/bash %s" % job_file)
 
 ############################################################
 def call_modern():
@@ -73,7 +73,7 @@ def call_modern():
                                       platform = platform, blksize = n)
     with open(job_file, "w") as job_script_handle:
         job_script_handle.write(job_script)
-    #os.system(r"qsub -S /bin/bash %s" % job_file)
+    os.system(r"qsub -S /bin/bash %s" % job_file)
 
 ############################################################ 
 # Cycle over commands to run
