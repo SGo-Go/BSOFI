@@ -30,23 +30,23 @@ of block p-cyclic matrices on CPU+GPU platforms.
 * To  **CALL** BSOF/I subroutines in own codes, see examples 
   *ftest_hybrid.f90*, *ftest_cpu.f90* (Fortran) and *ctest.c* (C/C++).  
   The general scheme for Fortran is shown below
-`
-    integer  :: nnb, lw
-    integer  ::handler(10)
-    
-    ! Initialize device and allocate GPU memory
-    call hybridXinitH(n, nb, nnb, handler)
-    
-    ! Create working space on CPU
-    lw = hybridXbsofiLWorkH(n, nb, nnb, -1)
-    allocate(W1(lw))
-    
-    ! Inversion
-    call hybridXbsoftriH(handler, n, nb, A, nnb, tauBsofi, W1, lw, info)
-    call hybridXbsoiH(handler, n, nb, A, nnb, tauBsofi, W1, lw, info)
-    
-    ! Shutdown device and deallocate GPU memory
-    call hybridXfinalizeH(handler)`
+
+			integer  :: nnb, lw
+			integer  ::handler(10)
+			
+			! Initialize device and allocate GPU memory
+			call hybridXinitH(n, nb, nnb, handler)
+			
+			! Create working space on CPU
+			lw = hybridXbsofiLWorkH(n, nb, nnb, -1)
+			allocate(W1(lw))
+			
+			! Inversion
+			call hybridXbsoftriH(handler, n, nb, A, nnb, tauBsofi, W1, lw, info)
+			call hybridXbsoiH(handler, n, nb, A, nnb, tauBsofi, W1, lw, info)
+			
+			! Shutdown device and deallocate GPU memory
+			call hybridXfinalizeH(handler)`
 
 For more **INFORMATION**, please refer to the technical report:
 
@@ -54,4 +54,6 @@ For more **INFORMATION**, please refer to the technical report:
 [A Structured Orthogonal Inversion of Block 
 p-Cyclic Matrices on Multicores with GPU Accelerators]
 (http://www.cs.ucdavis.edu/research/tech-reports/2012/CSE-2013-78.pdf),
-Techn. rep. No. CSE-2013-78, 2013
+Tech. rep. No. CSE-2013-78, 2013
+
+mailto: <sgogolenko@ucdavis.edu>
