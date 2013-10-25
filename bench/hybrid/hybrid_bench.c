@@ -91,16 +91,25 @@ int process(int threads, int tests, int n_process, int L_first)
   /************************************************************
    *                   Allocate memory 
    ************************************************************/
-  CUBLAS_HOSTALLOC(    hA,   scalar_t,    N * lda );
-  CUBLAS_DEVALLOC ( dwork,   scalar_t,    ldwork  );
+  DBGERROR("Mem consumption: [A]=%.2fMb work=%.2fMb dwork=%.2fMb", 
+	   (N*lda)*(sizeof(scalar_t)/1048576.), 
+	   lwork  *(sizeof(scalar_t)/1048576.),
+	   ldwork *(sizeof(scalar_t)/1048576.));
 
   LAPACK_MALLOC(   tau,   scalar_t,    N      );
   LAPACK_MALLOC(  work,   scalar_t,    lwork  );
 
-#ifdef BENCH_CPU_BSOFI
   LAPACK_MALLOC(     A,   scalar_t,    N * lda);
+
+  CUBLAS_DEVALLOC ( dwork,   scalar_t,    ldwork  );
+
+#ifdef BENCH_CPU_BSOFI
+  DBGERROR("Mem consumption: [hA]=%.2fMb", 
+	   (N*lda)*(sizeof(scalar_t)/1048576.));
+
+  CUBLAS_HOSTALLOC(    hA,   scalar_t,    N * lda );
 #else
-  A = hA;
+  hA = A;
 #endif  
 
   /************************************************************
@@ -174,13 +183,14 @@ int process(int threads, int tests, int n_process, int L_first)
   /************************************************************
    *                    Memory clean up
    ************************************************************/
-#ifdef BENCH_CPU_BSOFI
-  LAPACK_FREE(    A    );
-#endif  
   LAPACK_FREE(   tau   );
   LAPACK_FREE(   work  );
 
+  LAPACK_FREE(    A    );
+
+#ifdef BENCH_CPU_BSOFI
   CUBLAS_HOSTFREE(    hA   );
+#endif  
   CUBLAS_DEVFREE (  dwork  );
 
   /*************************************************************

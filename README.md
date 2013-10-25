@@ -1,5 +1,5 @@
 ======================================================================
-BSOF/I README FILE
+**BSOF/I README** FILE
 
 Structured Orthogonal Inversion Codes for Block p-Cyclic Matrices
 ======================================================================
@@ -12,8 +12,11 @@ of block p-cyclic matrices on CPU+GPU platforms.
 
 * To **COMPILE** BSOF/I codes, create the settings.make file to indicate where 
   CUDA, CPU BLAS, MAGMA, and LAPACK are installed on your system. Example
-  is given in zwolf.make, showing how to link to 
-  MKL, CuBLAS and MAGMA on zWolf platform in UC Davis.  
+  is given in *zwolf.make*, showing how to link to 
+  MKL, CuBLAS and MAGMA on 
+  [zWolf](http://www.cs.ucdavis.edu/~bai/ECS231/openmp/zwolf.html) platform in UC Davis.
+  See also *dirac.make* for 
+  [Dirac](http://www.nersc.gov/users/computational-systems/dirac/) at NERSC.  
    
 * To **TUNE** CPU+GPU codes, you can modify the parameters 
   inserted in file *include/bsofi_params.h*. The default 
