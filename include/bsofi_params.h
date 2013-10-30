@@ -12,7 +12,7 @@
 #ifndef __BSOFI_PARAMS_H__
 #define __BSOFI_PARAMS_H__
 
-#define BSOFI_PLATFORM DIRAC_FERMI
+/* #define BSOFI_PLATFORM DIRAC_FERMI */
 
 #ifdef BSOFI_PLATFORM
 #  include <bsofi_params_all.h>

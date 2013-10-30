@@ -17,8 +17,6 @@ FILE * pFile;
 #define MSGFLUSH(...)				\
   fflush(pFile)
 
-#define MAX_TEST 20
-int sizen[MAX_TEST];
 const int ntest = 12;
 
 int process(int threads, int tests, int n, int L);
@@ -30,10 +28,6 @@ int main(int argc, char** argv)
   int nthreads = 0, tests = 0;
 
   pFile = stdout; 
-
-  int k = 8;
-  for(i = 0; i < MAX_TEST; i++, k+=2)
-    sizen[i] = k*k;
  
   if (argc != 1) {
     for(i = 1; i<argc; i++){
@@ -51,13 +45,8 @@ int main(int argc, char** argv)
       }
     } 
 
-    if      (n>0 && !tests ) {sizen[0] = n; tests = 1; }
-    else if (n>0 && tests>0) {
-      k = n; 
-      for(i = tests; i > 0; i--, k-=2){
-	sizen[i-1] = k*k;
-      }
-    }
+    if      (n>0 && !tests ) {tests = 1; }
+    else if (n>0 && tests>0) {;}
     else if (!n  && !tests ) {tests = ntest;}
     else if (!n  && tests>0) {;}
     else {
