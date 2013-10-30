@@ -21,8 +21,8 @@ of block p-cyclic matrices on CPU+GPU platforms.
 * To **TUNE** CPU+GPU codes, you can modify the parameters 
   inserted in file *include/bsofi_params.h*. The default 
   values are tuned for zWolf. 
-  Parameters `KAPPA_\*` control workload distribution between host and device.
-  Parameters `\*_SWITCH_\*` specify when to switch between CPU and hybrid codes. 
+  Parameters `KAPPA_*` control workload distribution between host and device.
+  Parameters `*_SWITCH_*` specify when to switch between CPU and hybrid codes. 
 
 * To **TEST** BSOF/I, compile codes and run *test*.  
 

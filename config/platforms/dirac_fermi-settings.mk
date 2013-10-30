@@ -15,6 +15,6 @@ QUEST_PATH     =
 ATLAS_PATH     = /usr/common/usg/ATLAS/3.9.15
 LAPACK = atlas
 
-CC   = icc
-CXX  = icc
+CC   = icc -DBSOFI_PLATFORM=DIRAC_FERMI #pgcc
+CXX  = icc -DBSOFI_PLATFORM=DIRAC_FERMI #pgcc
 FC   = #gfortran

@@ -12,8 +12,11 @@
 #ifndef __BSOFI_PARAMS_H__
 #define __BSOFI_PARAMS_H__
 
-#define USE_PMODEL
-//#undef  USE_PMODEL
-#include <bsofi_params_dirac_fermi.h>
+#define BSOFI_PLATFORM DIRAC_FERMI
 
+#ifdef BSOFI_PLATFORM
+#  include <bsofi_params_all.h>
+#else
+#  include <bsofi_params_default.h>
+#endif
 #endif

@@ -17,6 +17,6 @@ QUEST_PATH     = /home/sergiy/opt/QUEST/last
 
 ARPACK_PATH    = 
 
-CC   = icc
-CXX  = icc #icpc
+CC   = icc -DBSOFI_PLATFORM=ZWOLF
+CXX  = icc -DBSOFI_PLATFORM=ZWOLF #icpc
 FC   = gfortran

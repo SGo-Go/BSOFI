@@ -158,7 +158,7 @@ int hybridXbsoftri(cublasHandle_t handle, int n, int L,
   scalar_t *dW;
 
   /* Get maximum value of l_switch for inversion */
-  double kappa_R = GET_KAPPA_R(n);
+  double kappa_R = KAPPA_R(n);
   l_switch = get_li(0, L, kappa_R); /* L*Fswitch/1000; if(l_switch > L-3) l_switch = L-3; */
 
   dXarg  = dwork                   - (L - l_switch - 1)*n*lddx;
@@ -293,8 +293,8 @@ int hybridXbsoi(cublasHandle_t handle, int n, int L,
 {
   RESET_BSOFI_PROFILE(profHybridBSOI);
 
-  double kappa_Q = GET_KAPPA_Q(n);
-  int ck1 = GET_Ck1(n);
+  double kappa_Q = KAPPA_Q(n);
+  int ck1 = C_K1(n);
   int k_switch = get_lk(0,L, kappa_Q, ck1);
   /* printf("\n\n%d\n\n", k_switch); */
 
