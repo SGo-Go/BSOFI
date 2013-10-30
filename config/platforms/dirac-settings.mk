@@ -13,7 +13,7 @@ BOOST_PATH     = /usr/common/usg/boost/1.50
 MAGMA_PATH     = #/usr/common/usg/magma/1.1.0
 QUEST_PATH     = 
 ATLAS_PATH     = /usr/common/usg/ATLAS/3.9.15
-LAPACK = atlas
+LAPACK         = mkl
 
 CC   = icc
 CXX  = icc

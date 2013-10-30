@@ -12,8 +12,14 @@
 #ifndef __BSOFI_PARAMS_ALL_H__
 #define __BSOFI_PARAMS_ALL_H__
 
+#define ZWOLF        1
+#define ZWOLF06      2
+#define DIRAC_FERMI 10
+#define DIRAC_TESLA 11
+
 /************************************************************/
 #if BSOFI_PLATFORM == ZWOLF
+#warning Optimized for ZWolf
 
 #define KAPPA_R(__n) ((__n) < 155 ? (6.8024e-01 + 1.2383e+01/((__n) - (6.7813e+01))) : 8.2227e-01)
 #define KAPPA_Q(__n) ((__n) < 181 ? (7.1411e-01 + 1.3100e+01/((__n) - (7.7861e+01))) : 8.4112e-01)
@@ -26,6 +32,7 @@
 #endif
 /************************************************************/
 #if BSOFI_PLATFORM == ZWOLF06
+#warning Optimized for ZWolf (1 slot)
 
 #define KAPPA_R(__n) ((__n) < 1863 ? (4.2121e-01 + 2.7216e+01/((__n) - (4.1433e+01))) : 4.3615e-01)
 #define KAPPA_Q(__n) ((__n) < 1861 ? (4.1808e-01 + 1.7680e+01/((__n) - (4.6115e+01))) : 4.2783e-01)
@@ -38,6 +45,7 @@
 #endif
 /************************************************************/
 #if BSOFI_PLATFORM == DIRAC_TESLA
+#warning Optimized for Dirac (Tesla GPU)
 
 #define KAPPA_R(__n) ((__n) < 678 ? (-3.8656e+00 + 2.1618e+04/((__n) - (-3.7944e+03))) : 9.6794e-01)
 #define KAPPA_Q(__n) ((__n) < 619 ? (6.3164e-01 + 2.4263e+02/((__n) - (-1.1800e+02))) : 9.6085e-01)
@@ -50,6 +58,7 @@
 #endif
 /************************************************************/
 #if BSOFI_PLATFORM == DIRAC_FERMI
+#warning Optimized for Dirac (Fermi GPU)
 
 #define KAPPA_R(__n) ((__n) < 1185 ? (1.8926e-01 + 7.1841e+01/((__n) - (1.4126e+01))) : 2.5062e-01)
 #define KAPPA_Q(__n) ((__n) < 800 ? (1.8603e-01 + 4.4045e+01/((__n) - (4.4763e+01))) : 2.4435e-01)
