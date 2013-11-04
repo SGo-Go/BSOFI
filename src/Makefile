@@ -17,7 +17,8 @@ TARGET   = $(BSOFI_LIB)
 SOURCES   = bsofi_cpu.c bsofi_callback.c bsofi_lapack.c 
 
 #ifneq "$(CUDA_PATH)" ""
-SOURCES  += bsofi_hybrid.c
+SOURCES  += bsofi_hybrid_adaptive.c bsofi_hybrid_load_balancing.c
+#SOURCES  += bsofi_hybrid_static.c
 #endif
 
 ifneq "$(MAGMA_PATH)" ""

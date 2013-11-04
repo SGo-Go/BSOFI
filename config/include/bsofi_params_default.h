@@ -14,6 +14,7 @@
 
 #include <config.h>
 
+#warning Default load balancing parameters  
 /**************************************************
  *      Control of workload distribution          *
  **************************************************/
@@ -26,10 +27,13 @@
 #define KAPPA_Q_C -6.66607109e+02   
 #define KAPPA_Q_D  2.60855477e+02
 
-#  define KAPPA_R(__n) KAPPA_R_A
-#  define KAPPA_Q(__n) KAPPA_Q_A
+#  define KAPPA_R(__n) 1. /* KAPPA_R_A */
+#  define KAPPA_Q(__n) 1. /* KAPPA_Q_A */
 
 #  define C_K1(__n) 0
+#  define C_I(__n) 0
+#  define C_J(__n) 0
+#  define C_K2(__n) 0
 
 /**************************************************
  *      Control of switching between CPU          *

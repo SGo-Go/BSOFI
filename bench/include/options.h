@@ -17,8 +17,6 @@ FILE * pFile;
 #define MSGFLUSH(...)				\
   fflush(pFile)
 
-const int ntest = 12;
-
 int process(int threads, int tests, int n, int L);
 
 int main(int argc, char** argv)
@@ -47,7 +45,7 @@ int main(int argc, char** argv)
 
     if      (n>0 && !tests ) {tests = 1; }
     else if (n>0 && tests>0) {;}
-    else if (!n  && !tests ) {tests = ntest;}
+    else if (!n  && !tests ) {tests = 1;}
     else if (!n  && tests>0) {;}
     else {
       printf("\nUsage: \n");
@@ -56,8 +54,7 @@ int main(int argc, char** argv)
     }
   }
   else {
-    L = 10;
-    tests = ntest;
+    L = 10; tests = 1; n = 2;
   }
 
   if(n == 0)  n = 256;

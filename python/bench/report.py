@@ -79,6 +79,7 @@ class BenchReportTable(ReportTable):
 
     def time (self, *names): return self.value(names, val_type='T')
     def instr(self, *names): return self.value(names, val_type='I')
+    def perf(self, *names):  return self.instr(*names)/self.time(*names)
 
     def perf_scaled (self, names, instr_names):
         return [flops/T for T, flops in zip(self.time(name), self.instr(name))]

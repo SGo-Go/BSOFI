@@ -19,4 +19,9 @@
 #else
 #  include <bsofi_params_default.h>
 #endif
+
+int get_lk(int k, int p, double kappa_Q, int ck1, int ck2);
+int get_li(int i, int p, double kappa_R, int ci);
+int get_lj(int j, int p, double kappa_C, int cj);
+
 #endif
