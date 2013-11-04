@@ -258,7 +258,8 @@ int hybridXbsoi(cublasHandle_t handle, int n, int L,
 		// int Lswitch, 
 		int* info)
 {
-  double kappa_Q = KAPPA_Q(int(n*pow(L>>1,1./3)));
+  int n_corr = (int)(n*pow(L>>1,1./3));
+  double kappa_Q = KAPPA_Q(n_corr);
   int ck1 = C_K1(n);
   int ck2 = C_K1(n);
 
