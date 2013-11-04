@@ -50,6 +50,11 @@ int process(int threads, int tests, int n_process, int L_first)
   scalar_t *A = 0, *tau = 0;
   scalar_t *hA = 0;
 
+#ifdef BENCH_GEMM
+  scalar_t *dX, *dW, *dQ;
+  int lddq, ldbottom;
+#endif
+
   /************************************************************
    *             Define matrix sizes for benchmarking
    ************************************************************/
@@ -112,10 +117,21 @@ int process(int threads, int tests, int n_process, int L_first)
   hA = A;
 #endif  
 
+#ifdef BENCH_GEMM
+  lddq = GET_LD_DEV(2*n); ldbottom = GET_LD_DEV(L*n);
+
+  dQ = dwork;
+  dW = dwork + 2*n*lddq;
+  dX = dwork + 2*n*lddq + 2*n*ldbottom;
+#endif
+
   /************************************************************
    *              Title string in tabular output
    ************************************************************/
   MESSAGE(FORMAT_TITLE_SIZE"      "      );
+#ifdef BENCH_GEMM
+  MESSAGE(FORMAT_TITLE_PARAM(GEMM_GPU)"    ");
+#endif
   MESSAGE(FORMAT_TITLE_PARAM(BSOFTRI_HYB)"    ");
   MESSAGE(FORMAT_TITLE_PARAM(BSOI_HYB)"     ");
 #ifdef BENCH_CPU_BSOFI
@@ -135,6 +151,17 @@ int process(int threads, int tests, int n_process, int L_first)
     /********************** Init ********************************/
     MATR_INIT(n, L, A, lda);
     MESSAGE( FORMAT_SIZE "  ", n, L);
+
+    /********************* bench xGEMM ************************/
+#ifdef BENCH_GEMM
+    cudaDeviceSynchronize();
+    BENCH((FLOPS_DGEMM((double)L*n, (double)2*n, (double)n)),
+	  cublasXgemm   ('N', 'T', L*n, 2*n, n, 1, 
+			 dW, ldbottom,
+			 dQ, lddq, 0, 
+			 dX, ldbottom);
+	  cudaDeviceSynchronize());
+#endif
 
     /********************* CPU bench ****************************/
 #ifdef BENCH_CPU_BSOFI

@@ -18,6 +18,8 @@
 /** Output control: report or console (console is default) */
 #define  MAKE_BENCH_REPORT
 
+#define  BENCH_GEMM
+
 /** Control if CPU routines benchmarking */
 /* #define  BENCH_CPU_BSOFI */
 #undef   BENCH_CPU_BSOFI
