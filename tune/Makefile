@@ -20,9 +20,11 @@ all: hybrid #cpu
 
 hybrid:
 	($(CD) ./hybrid; $(MAKE))
+	($(CD) ./gemm; $(MAKE))
 
 clean:
 	($(CD) ./hybrid; $(MAKE) clean)
+	($(CD) ./gemm; $(MAKE) clean)
 	# ($(CD) ./cpu; $(MAKE) clean)
 	$(RM) ./*~
 
