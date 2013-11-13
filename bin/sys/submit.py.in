@@ -21,4 +21,4 @@ from platforms import Job
 #Job, Platform, BashJobManager, PBSJobManager #zwolf as platform
 
 manager = platform.job_manager
-manager.submit(Job("ls -l"))
+manager.submit(Job(" ".join(sys.argv[1:])))
