@@ -7,7 +7,7 @@
 #  Description:
 #   Default configuration for Dirac at NERSC.
 
-CUDA_PATH      = /usr/common/usg/cuda/5.0
+CUDA_PATH      = /usr/common/usg/cuda/5.5
 MKL_PATH       = /usr/common/usg/intel/13.0.028/composer_xe_2013.1.117
 BOOST_PATH     = /usr/common/usg/boost/1.50
 MAGMA_PATH     = #/usr/common/usg/magma/1.1.0

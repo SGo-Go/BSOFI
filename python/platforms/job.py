@@ -40,11 +40,11 @@ class PBSJobManager(JobManager):
         from popen2 import popen2
         import time
         output, input = popen2('qsub  -S /bin/bash')
-        job_template_handle = open(job_template, "r")
+        job_template_handle = open(self.job_template, "r")
         job_script = job_template_handle.read()
         job_template_handle.close()
         job_script = job_script.replace(r"@cmd@", job.cmd)
-        input.write(job_string)
+        input.write(job_script)
         input.close()
         print "Job is submited: [%s]" % output.read()
         time.sleep(0.1)
