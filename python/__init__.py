@@ -10,4 +10,4 @@
 #   Python classes for data treatment and work of remote platforms.
 # ------------------------------------------------------------------
 
-__all__ = ['bench', ]
+__all__ = ['platforms', 'bench']
