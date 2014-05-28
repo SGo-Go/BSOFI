@@ -23,7 +23,7 @@
 \usepackage{xspace}
 \newcommand{\MKL}{{\sc MKL}\xspace}
 \newcommand{\Blas}{{\sc BLAS}\xspace}
-\newcommand{\Lapack}{{\sc LAPack}\xspace}
+\newcommand{\Lapack}{{\sc LAPACK}\xspace}
 \newcommand{\Plasma}{{\sc Plasma}\xspace}
 
 \newcommand{\Cuda}{{\sc CUDA}\xspace}
@@ -106,7 +106,7 @@ Contract No. DE-AC02-05CH11231.}
   load balance, and validate the model through numerical tests.
   Benchmarking results show that the parallel BSOF
   based inversion algorithm attains up to 90\% of 
-  {\tt DGEMM} performance on hybrid CPU+GPU systems.
+  \Gemm performance on hybrid CPU+GPU systems.
 
   \begin{keywords}  
     $p$-cyclic matrix; matrix inversion; 
@@ -542,9 +542,9 @@ and the diversity in the kernel's performance on throughput and latency oriented
 Specifically, our design is inspired by the following well-known observation.
 The performance efficiency
 highly varies for different numerical kernels, 
-and the matrix-matrix multiplication routine {\tt DGEMM}
-tends to be the most efficient among other BLAS/LAPACK kernels. 
-Furthermore, performance gaps between {\tt DGEMM} and other kernels
+and the matrix-matrix multiplication routine \Gemm
+tends to be the most efficient among other BLAS/\Lapack kernels. 
+Furthermore, performance gaps between \Gemm and other kernels
 are usually much lower for 
 latency oriented processors compared to the throughput oriented ones.
 At the same time, in both cases, the gaps become smaller 
@@ -552,11 +552,11 @@ as the size of the problems grows.
 Hence, 
 to attain better performance of hybrid CPU+GPU algorithm, 
 it is preferable to exploit 
-the throughput oriented GPU accelerators only for {\tt DGEMM}
+the throughput oriented GPU accelerators only for \Gemm
 and, conversely, 
 to use the latency oriented CPUs for the whole variety of required kernels.
 In addition, such work distribution strategy
-avoids those LAPACK kernels for GPU platforms,
+avoids those \Lapack kernels for GPU platforms,
 which require CPU resources, 
 and thus may 
 interfere with pure CPU kernels
@@ -572,7 +572,7 @@ where column panels are factorized on CPU
 and afterwards sent to GPU for trailing matrix update.
 
 Since 
-a vast part of computations in the BSOFI is spent on {\tt DGEMM},
+a vast part of computations in the BSOFI is spent on \Gemm,
 this algorithm has a great potential to be reorganized 
 in accordance with the work distribution strategy discussed above.
 The necessary modifications are sketched in Fig.\,\ref{fig:BSOFI_HostDevice}. 
@@ -584,7 +584,7 @@ The necessary modifications are sketched in Fig.\,\ref{fig:BSOFI_HostDevice}.
     adopted to execution on hybrid CPU+GPU platforms.%
     \label{fig:BSOFI_HostDevice}}
 \end{figure}
-To overcome the lack of parallelism and {\tt DGEMM} operations 
+To overcome the lack of parallelism and \Gemm operations 
 in the factorization phase,
 we modify the basic BSOFI algorithm 
 by merging the first two phases -- 
@@ -675,7 +675,7 @@ explicit reconstruction of matrices $Q^{(k)}$
 and the scheme similar to the algorithm shown in Fig.\,\ref{alg:BSOI_Qk}.
 In this way, 
 we replace {\tt DORMQR} calls for applying reflectors to column panels 
-in favor of more efficient {\tt DGEMM} calls
+in favor of more efficient \Gemm calls
 under the small computational overhead.
 The upper parts of block columns are updated on the host, 
 whereas devices are used to update lower parts. 
@@ -752,7 +752,7 @@ For more details and derivation of formulae, we refer to~\cite{GogolenkoBai13}.
 
 The formulae presented below use the following notation for time measures.
 $T^{\rm cr}_{\texttt{R(P)}}$ denotes the wall time 
-for BLAS and LAPACK routines {\tt R} with a tuple of parameters {\tt P}
+for BLAS and \Lapack routines {\tt R} with a tuple of parameters {\tt P}
 on the computational resource CPU or GPU, respectively.
 E.g., $T^{\rm cpu}_{\texttt{DGEMM(m,n,k)}}$ is an elapsed time for 
 computing a product of $m$-by-$k$ and $k$-by-$n$ matrices
@@ -987,7 +987,7 @@ At the same time,
 performance improvements for subroutine \Bsoftri 
 are less significant than for \Bsoi.
 If $n \gtrapprox 512$, performance curves are close to each other. 
-This is a consequence of reaching maximum performance for {\tt DGEMM}
+This is a consequence of reaching maximum performance for \Gemm
 on both CPU and GPU. 
 
 More benchmarking results on both single and multi-GPU platforms 
