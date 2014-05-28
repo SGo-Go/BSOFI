@@ -62,13 +62,17 @@
 
 \begin{document}
 \title{
-  Structured Orthogonal Inversion of Block $p$-cyclic Matrices \\ 
-  on Multicore with GPU Accelerators
-  % \thanks{% \bigskip \noindent {\sc Acknowledgment:}
-  %   This research used resources of the National Energy Research
-  %   Scientific Computing Center, which is supported by the Office of
-  %   Science of the U.S. Department of Energy under 
-  %   Contract No. DE-AC02-05CH11231.}
+Structured Orthogonal Inversion of Block $p$-Cyclic Matrices 
+on Multicore with GPU Accelerators
+\thanks{% \bigskip \noindent {\sc Acknowledgment:}
+This work was supported by the National Science Foundation 
+under grant NSF-PHY-1005503. SG would like to thank the Fulbright 
+Program Office in Ukraine and the Institute of International Education 
+for finantial support during this study.
+This research used resources of the National Energy Research
+Scientific Computing Center, which is supported by the Office of
+Science of the U.S. Department of Energy under 
+Contract No. DE-AC02-05CH11231.}
 }
 \titlerunning{BSOI on Multicores with GPUs} 
 
@@ -92,32 +96,33 @@
 
 
 \begin{abstract}
-  Block $p$-cyclic matrices are an important class of block structured
-  matrices with broad applications such as 
-  numerical solutions of differential equations, 
-  Markov chain modeling, 
-  and quantum Monte Carlo simulations. 
-  The explicit inversion of the block $p$-cyclic matrices is 
-  a common computational kernel in these applications.
+%  Block $p$-cyclic matrices are an important class of block structured
+%  matrices with broad applications such as 
+%  numerical solutions of differential equations, 
+%  Markov chain modeling, 
+%  and quantum Monte Carlo simulations. 
+%  The explicit inversion of the block $p$-cyclic matrices is 
+%  a common computational kernel in these applications.
   % It is well known that the standard Gaussian
   % elimination with partial pivoting based algorithms could be numerically
   % unstable. In contrast, orthogonal factorization based methods are
   % numerically stable but require more floating point operations.
+%In this paper, 
+We present a block structured orthogonal factorization (BSOF) algorithm
+and its parallelization for computing the inversion of block $p$-cyclic matrices. 
+We aim at the high performance on multicores with GPU accelerators. 
+We provide a quantitative performance model for optimal host-device 
+load balance, and validate the model through numerical tests.
+Benchmarking results show that the parallel BSOF
+based inversion algorithm attains up to 90\% of 
+{\tt DGEMM} performance on hybrid CPU+GPU systems.
 
-  In this paper, we present a block structured orthogonal
-  factorization and inversion (BSOFI) algorithm
-  and its parallel version aimed at attaining high performance on multicores with GPU accelerators. 
-  We provide a quantitative performance model for optimal host-device 
-  load balance, and validate the model through numerical tests.
-  Benchmarking has shown that on hybrid CPU+GPU systems, the parallel BSOFI
-  algorithm attains up to 90\% of matrix-matrix multiplication performance. 
-
-  \begin{keywords}  
-    $p$-cyclic matrix; matrix inversion; 
-    structured orthogonal factorization;
+\begin{keywords}  
+$p$-cyclic matrix; matrix inversion; 
+structured orthogonal factorization;
     % load balancing; 
-    performance modelling; 
-    GPU accelerated linear algebra %; \Cuda multi-GPU programming
+performance modelling; 
+GPU acceleration%; \Cuda multi-GPU programming
   \end{keywords}
 \end{abstract}
 
@@ -125,62 +130,61 @@
 \section{Introduction}
 
 Since the pioneering works of
-Varga, Young, Romanovsky, and others in the 1950s. % \cite{Varga59,Varga09}, 
-block $p$-cyclic matrices
-have been found to be a very useful class of block structured matrices
-with applications in broad areas of computational modeling and
-simulations. The concept of $p$-cyclic matrices
+Varga, Young, Romanovsky, and others in the 1950s, % \cite{Varga59,Varga09}, 
+$p$-cyclic matrices
+have been found to be a very useful class of structured matrices
+with applications in numerical solutions of differential equations, 
+Markov chain modeling and quantum Monte Carlo simulations. 
+The concept of block $p$-cyclic matrices
 in its modern term is referred to matrices which can be
-transformed to the following so-called \emph{normalized block $p$-cyclic form} 
+transformed to the following \emph{normalized block $p$-cyclic form} 
 by row and/or column permutations: 
 \begin{equation} \label{eq:matr_A}
   H =
   \begin{bmatrix}
-    A_1 &  O  &  O  & \cdots & B_p   \\
-    B_1 & A_2 &  O  & \cdots &  O    \\
-    O   & B_2 & A_3 & \cdots &  O    \\
-    \vdots  & \vdots & \ddots & \ddots & \vdots  \\
-    O   & O   &  \cdots  & B_{p-1} & A_p
+    A_1 &    &    &  & B_p   \\
+    B_1 & A_2 &    &  &  \\
+        & B_2 & A_3 &  &     \\
+            &        & \ddots & \ddots &         \\
+        &     &          & B_{p-1} & A_p
   \end{bmatrix}
   ,
 \end{equation}
 where $A_i$ and $B_i$ are non-zero blocks.
 For the sake of simplicity, in this paper,
 we are concerned entirely with the {normalized block $p$-cyclic matrices},
-and furthermore, we assume that the matrices
+and furthermore, we assume that 
 $A_i$ and $B_i$ are $n$-by-$n$ square blocks, although
-in some applications the blocks $A_i$ and $B_i$ are rectangular.
+in some applications $A_i$ and $B_i$ are rectangular.
 The fact that we discuss only matrices with the square blocks $A_i$ and $B_i$
 does not limit the generality of approaches presented in this paper.
 
 The early studies of $p$-cyclic matrices 
-were closely related to numerical solution of differential equations, 
-where these matrices arise from discretization schemes of ODEs
-and PDEs~\cite{Wright93,Wright92BSOF,Fairweather04}.
-In such applications, the $p$-cyclic matrices are also named bordered almost block diagonal 
-(BABD) matrices. 
-An incomplete list of 
-BABD-based numerical algorithms,  
-includes multiple shooting and finite difference schemes
-for two-point boundary value problems (BVPs).
+were closely related to numerical solution of differential 
+equations~\cite{Wright93,Wright92BSOF,Fairweather04}.
+In these applications, the $p$-cyclic matrices are also 
+referred to as bordered almost block diagonal 
+(BABD) matrices.  An incomplete list of 
+BABD-based numerical algorithms includes multiple shooting 
+and finite difference schemes for two-point boundary value problems (BVPs),
 orthogonal spline collocation methods for separable elliptic BVPs, 
-method of lines and Keller's box scheme for various initial BVPs~\cite{Wright92BSOF,Fairweather04}.
+method of lines and Keller's box scheme for various initial 
+BVPs~\cite{Wright92BSOF,Fairweather04}.
 %
 The $p$-cyclic matrices also appear in 
-computational quantum mechanics and Markov chains modeling. 
-In particular, $p$-cyclic stochastic 
+Markov chains modeling, where the $p$-cyclic stochastic 
 matrices represent infinitesimal generators of continuous-time 
 Markov chains with periodic transition graphs for queuing networks 
 and stochastic Petri nets~\cite{Ernst00}. %~\cite{Stewart94,Niethammer00,Marek03}.
-In the same way, $p$-cyclic matrices also play a crucial role in 
-quantum Monte Carlo (QMC) simulations of strongly correlated 
-materials via the Hubbard model, where the inverses of 
-the Hubbard matrices, referred to as Green's functions, are required 
-to be repeatedly computed explicitly for 
-physical observables~\cite{Bai09,Tomas12}. %Loh92,
-Other less popular sources of applications for $p$-cyclic matrices include
-some linear least-square problems and 
-parameter estimation with non-linear DAE models.
+%
+In quantum Monte Carlo (QMC) simulations of Hubbard model for
+strongly correlated materials,
+the inverses of $p$-cyclic matrices, referred to as Green's functions, 
+are required to be repeatedly computed {\em explicitly} for 
+physical observables, see~\cite{Bai09,Tomas12} and references therein. %Loh92,
+Other sources of applications of $p$-cyclic matrices include
+some linear least-square problems and parameter estimation with 
+non-linear DAE models.
 
 In contrast to the subject of solving block $p$-cyclic linear systems, 
 where we observe tremendous progress over the last six decades,
@@ -188,11 +192,13 @@ the problem of computing $p$-cyclic matrix inversion explicitly remains in
 a state of infancy. The recent advances are mainly related to 
 computing some particular blocks in the inverse of a $p$-cyclic matrix
 using well-known explicit expressions~\cite{Bai09,Tomas12}.
-For instance, paper~\cite{Tomas12} addresses stabilized algorithms for 
+For instance, the paper~\cite{Tomas12} addresses stabilized algorithms for 
 calculation of diagonal blocks of the inverse of block $p$-cyclic matrices. 
-To the best of our knowledge, there are no previous works 
-focused on numerical algorithms for the inversion of entire 
-$p$-cyclic matrices.
+To the best of our knowledge, there are no previous work 
+focused on numerical algorithms for the entire inversion of 
+block $p$-cyclic matrices, which is required for 
+time-dependent physical measurements in the quantum Monte Carlo 
+simulation~\cite{Bai09}.
 Filling this gap is the main purpose of our paper. 
 % We explore the potential of conventional way for numerical inversion 
 % of matrices, where the matrix factorization is an inevitable first step in 
@@ -203,18 +209,17 @@ Filling this gap is the main purpose of our paper.
 % we develop a structured orthogonal factorization (SOF) based inversion algorithm 
 % in place of the conventional pivoted LU factorization based approach.
 
-In the course of this work, we pay particular attention to 
+In this paper, we pay particular attention to 
 algorithmic solutions designed specifically for high performance computing 
-on GPU accelerated multicores.
+on GPU accelerated multicore systems.
 We should point out that numerical libraries for GPGPU computing,
 including widely used 
 \CuSparse, % ~\cite{CuSparse13}, 
 \Cula, %~\cite{Humphrey10CULA}, 
 \Paralution, %~\cite{Paralution13}, 
 and \Cusp, % ~\cite{CuspLib13},
-do not support ``sparse'' matrix inversion.
-Furthermore, according to our experiments, 
-solvers in dense linear algebra libraries for GPUs 
+do not support inversion of structured and sparse matrix.
+Furthermore, solvers in dense linear algebra libraries for GPUs 
 such as \CuBlas, %~\cite{CuBlas13}
 \Magma~\cite{Tomov10Magma}, %Agullo09,
 and \Cula, %~\cite{Humphrey10CULA}, 
@@ -225,16 +230,15 @@ computations with zero-blocks.
 \label{sec:background}
 
 Historically, the studies of $p$-cyclic matrices
-were primarily focused on iterative and direct methods for $p$-cyclic linear
-systems. The vast literature on iterative methods cover in details
-successive overrelaxation,
+were primarily focused on iterative and direct methods for 
+$p$-cyclic linear systems. The vast literature on iterative methods 
+cover in details successive overrelaxation,
 aggregation and disaggregation,
 Chebyshev semi-iterative, 
-Krylov subspace, 
+and Krylov subspace methods~\cite{Ernst00}.
 % including preconditioned conjugate gradients~\cite{Amodio00}, 
-and other algorithms~\cite{Ernst00}.
-On the other hand, the attention paid in the past to the direct solvers 
-of $p$-cyclic linear systems is also remarkable.
+On the other hand, the attention to the direct solvers 
+is also remarkable.
 Researchers explored numerous variations of Gaussian elimination and 
 orthogonal factorization approaches for solving $p$-cyclic systems.
 There is a large volume of literature on Gaussian elimination
@@ -243,9 +247,9 @@ called almost block diagonal (ABD) systems~\cite{Wright92BSOF}.
 Nevertheless, while 
 handling % tending to handle 
 the ABD systems successfully, 
-the most of the Gaussian elimination processes fail in the more general case.
-In fact, Wright has shown in~\cite{Wright93} that 
-the conventional Gaussian elimination with row partial pivoting %(GEPP)
+Gaussian elimination processes could fail.
+In fact, in~\cite{Wright93}, it is shown that 
+the Gaussian elimination with row partial pivoting %(GEPP)
 produces exponential error growth
 for $p$-cyclic systems arising from multiple shooting for 
 some linear BVPs with mixed two-point boundary conditions. 
@@ -254,15 +258,16 @@ for which numerical stability is ensured,
 such as certain forms of pre-scaling
 and replacing row-by-row pivoting with 
 more accurate panel pivoting strategies.
-In particular, 
-in the recent paper~\cite{KhabouDGG13} Khabou et al.
-propose to use so called panel rank revealing pivoting strategy 
+In the recent paper~\cite{KhabouDGG13} Khabou et al.
+propose to use a panel rank-revealing pivoting strategy 
 based on strong rank revealing QR, 
 which significantly reduces the growth factor, and 
-thus results in practical stability of Gaussian elimination in most cases.
+thus results in practical stability of Gaussian elimination
+in most cases.
 
-Due to stability issues of Gaussian elimination algorithms, 
-Wright proposed to use orthogonal factorization~\cite{Wright92BSOF}.
+Due to numerical stability issues of Gaussian elimination algorithms, 
+Wright proposed to use a structured orthogonal 
+factorization (SOF)~\cite{Wright92BSOF}.
 He described a serial and two parallel block SOF algorithms. 
 The first parallel algorithm uses a recursive factorization 
 process similar to cyclic reduction,
@@ -280,36 +285,27 @@ SOF is presented in \cite{Wright92BSOF}.
 \section{Basic algorithms}
 \label{sec:algorithm}
 
-This section gives a brief overview of the algorithm for 
+This section gives a brief overview of an algorithm for 
 structure-exploiting orthogonal inversion 
-of normalized block $p$-cyclic matrices with $n$-by-$n$ blocks.
-For more details on the algebra behind this algorithm 
-with its basic modifications such as blocking and batching, 
-we refer interested readers to our technical report\,\cite{GogolenkoBai13}.
+of block $p$-cyclic matrices. It is referred to as BSOFI. 
+For more details of the BSOFI and its modifications such as blocking and batching, 
+we refer readers to our technical report~\cite{GogolenkoBai13}.
 
-The algorithm framework is composed of three successive phases. 
-The first one is a structured orthogonal factorization (SOF) 
-of $p$-cyclic matrix $H$: $H = QR$.
+The algorithmic framework of BSOFI is composed of three phases. 
+The first one is the block SOF of $H$: $H = QR$.
 Once factors $Q$ and $R$ are computed, 
 the inverse is calculated by the identity $H^{-1} = R^{-1}Q^T$
 in two phases, namely inversion of the factor $R$ 
-and applying the transpose of the factor $Q$ to the 
-inverse of $R$ from right.
-Our inversion algorithm appears to be backward stable,
-inheriting this property from its core operations, 
-namely Householder transformation and block back substitution, 
-which are well known to have backward stability.
+and applying the transpose of the factor $Q$.
+%Our inversion algorithm appears to be backward stable,
+%inheriting this property from its core operations, 
+%namely Householder transformation and block back substitution, 
+%which are well known to have backward stability.
 
-\textit% \paragraph
-{Structured orthogonal factorization} \label{sec:BSOF}
-is the first phase of BSOI. 
-In the factorization phase, 
-we use the serial version of 
-the structured QR factorization algorithm introduced 
-in~\cite{Wright92BSOF}, 
-which is proved to be stable, 
-and has an identical serial complexity to the best known 
-block structured factorization algorithms based on Gaussian elimination. 
+\textit{Block structured orthogonal factorization (BSOF)} 
+is a block structured QR factorization algorithm introduced 
+in~\cite{Wright92BSOF}, and has an identical complexity to the best known 
+block structured Gaussian elimination based algorithm. 
 The essence of this algorithm is 
 in transformation of the matrix $H$ 
 through a sequence of $p-1$ block row updates (Fig.\,\ref{alg:BSOF}). 
@@ -319,50 +315,56 @@ $2n$ by $n$ submatrix $[\tilde{A}_k^T, B_k^T]^T$
 using Householder reflectors 
 and then we apply the computed Householder reflectors from left 
 in the reversed order to the selected non-zero block columns of the rows. }
-\begin{algorithm}[t]%[thb]
-  \footnotesize % \scriptsize
+
+\begin{figure}[t]  
+\centering 
+\begin{algorithm}[H]%[thb]
+  %\footnotesize % \scriptsize
+
   \KwData{$H$, $n$, $p$}
   \KwResult{$R$, $\{Q^{(k)} | 1 \leq k < p - 1 \}$}
   \BlankLine
 
   $R \gets O$; $\tilde{A}_1 \gets A_1$ ; $\tilde{B}_1 \gets B_p$\; 
+
   \For{$k \in \{1, 2,..., p-2 \}$ }{
     Compute regular QR: 
     $Q^{(k)} 
     \begin{bmatrix}
-      R_{kk} \\ O
+      R_{kk} \\ 0
     \end{bmatrix}
     =
     \begin{bmatrix}
       \tilde{A}_k \\ B_k
     \end{bmatrix}$\;
 
+    %% Update 
     $\begin{bmatrix}
       R_{k,k+1} & R_{k,p} \\ \tilde{A}_{k + 1} & \tilde{B}_{k + 1}
     \end{bmatrix}
     \gets
     \left( Q^{(k)} \right)^{T} 
     \begin{bmatrix}
-      O & \tilde{B}_k \\ {A}_{k + 1} & O
-    \end{bmatrix}$
+      0 & \tilde{B}_k \\ {A}_{k + 1} & 0
+    \end{bmatrix}$;
   }
   
-  Compute regular QR: 
+  Compute the QR: 
   $Q^{(p-1)} 
   \begin{bmatrix}
     R_{p-1,p-1} & R_{p-1,p}\\
-    O & R_{p,p}
+    0 & R_{p,p}
   \end{bmatrix}
   = \begin{bmatrix}
     \tilde{A}_{p-1} & \tilde{B}_{p-1}\\ 
     {B}_{p-1} & {A}_{p,p}\\ 
-  \end{bmatrix}$
-
-  \captionof{figure}{{\tt BSOF} -- Wright's serial version of SOF algorithm 
-    \label{alg:BSOF}
-  }
+  \end{bmatrix}$;
 \end{algorithm}
-This reduction process results in a factorization of the original matrix 
+\captionof{figure}{{\tt BSOF} -- Wright's serial version of SOF algorithm.}  
+\label{alg:BSOF}
+\end{figure} 
+
+This reduction process results in the factorization 
 $H = QR$, where $Q$ is a product of 
 the orthogonal $2n$-by-$2n$ matrices $Q^{(k)}$ extended 
 by identity blocks: 
@@ -377,31 +379,29 @@ by identity blocks:
   \end{bmatrix},
 \end{equation*}
 and $R$ has block upper bidiagonal form with 
-the dense last block column:
+the last block column:
 \begin{equation}
   \label{eq:matr_R}
   R =
   \begin{bmatrix}
-    R_{11} & R_{12} & O     & O     & \cdots & R_{1,p} \\
-    O     & R_{22} & R_{23} & O     & \cdots & R_{2,p} \\
-    O     & O     & R_{33} & R_{34} & & \vdots \\
-    \vdots  & \vdots & \vdots& \ddots & \ddots & R_{p-1,p}  \\
-    O   & O   &  O  & \cdots & & R_{p,p}
+    R_{11} & R_{12} &         &             & R_{1,p} \\
+           & R_{22} & R_{23}  &             & R_{2,p} \\
+           &        & \ddots  & \ddots      &  \vdots \\
+           &        &         & R_{p-1,p-1} & R_{p-1,p}  \\ 
+           &        &         &             & R_{p,p}
   \end{bmatrix}.
 \end{equation}
 
-\textit% \paragraph
-{Inversion of matrix $R$ via block back substitution} \label{sec:BSTRI}
-is the next phase.
-The inverse $X = R^{-1}$ has a block upper triangular shape,
-and its non-zero blocks can be revealed 
-via block back substitution (BBS) approach.
-We obtain a row version of the BBS algorithm (Fig.\,\ref{alg:BSTRI_RV})
-by taking into account the sparsity pattern (\ref{eq:matr_R}),
-while solving the block linear equation system derived from the identity $R X = I$,
-with respect to unknown non-zero blocks of $X$.
-Likewise, 
-the column version of the BBS algorithm is based on exploiting the identity $X R = I$.
+\textit{Inversion of matrix $R$ via block back substitution} 
+is the second phase. The inverse $X = R^{-1}$ is block upper triangular,
+and its non-zero blocks can be computed
+via block back substitution (BBS).
+%We show a row version of the BBS in Fig.\,\ref{alg:BSTRI_RV}
+We obtain a row version of the BBS Fig.\,\ref{alg:BSTRI_RV}
+by taking into account the zero-blocks of $R$,
+while solving the matrix equation $R X = I$ for $X$. 
+Likewise, the column version of the BBS algorithm is based on 
+solving $X R = I$.
 \begin{figure}[t]%[thb]
   \centering
   % \scriptsize
@@ -450,26 +450,24 @@ the column version of the BBS algorithm is based on exploiting the identity $X R
     \caption{{\tt BSTRI\_CV} -- Column Version of the BBS
       \label{alg:BSTRI_CV}}
   \end{subfigure}
-  \caption[]{Inversion of matrix $R$ via block back substitution\footnotemark
+  \caption[]{Inversion of matrix $R$ via block back substitution.\footnotemark
     \label{alg:BSTRI}}
 \end{figure}
 \footnotetext{ {\sf Batched} denotes group of % computational 
   kernels that can be implemented in a single batched run.}
 
-Both versions of the BBS have their virtues and their flaws. 
-The column version of the BBS requires 
-two times more floating point operations (flops) compared to its row version. 
-On the other hand, 
-we are able to perform 
-SOF and the column version in parallel, 
+Both versions of the BBS have their virtues and flaws. 
+The columnwise BBS requires 
+two times more floating point operations (flops) compared to 
+its row version.  On the other hand, 
+we are able to perform SOF and the column version in parallel, 
 which allows to overcome lack of parallelism 
 in the factorization phase (see Fig.\,\ref{alg:BSOF}).
 In contrast, 
 the latter is impossible in the row version. %postponed in the row version.
 
-\textit% \paragraph
-{Applying the orthogonal factor $Q^T$ to $R^{-1}$} \label{sec:BSOI}
-is the last phase of the SOI algorithm.
+\textit{Applying the orthogonal factor $Q^T$ to $R^{-1}$} 
+is the last phase.
 Due to the orthogonality of $Q^{(k)}$, the inverse of $Q$ is equal to 
 \begin{equation}
   Q^{-1} = Q^{T} = \prod_{k=1}^{p-1} Q_{p-k}^{T} = 
@@ -480,7 +478,7 @@ Thus, computing product $R^{-1} Q^{T}$ is equivalent to
 applying Householder reflectors of $\left(Q^{(k)}\right)^{T}$ to 
 the pairs of column panels of $R^{-1}$ from right in a backward order, 
 as shown in Fig.\,\ref{alg:BSOI_Cycle}. 
-This is the gist of the last phase of the BSOFI algorithm.
+This is the gist of the last phase of BSOFI.
 \begin{figure}[t]%[thb]
   \centering
   % \scriptsize
@@ -515,7 +513,7 @@ This is the gist of the last phase of the BSOFI algorithm.
     \caption{{\tt BSOI\_Qk} -- Applying $Q_k^{T}$
       \label{alg:BSOI_Qk}}
   \end{subfigure}
-  \caption{Applying the orthogonal factors (Householder reflectors) to $R^{-1}$%
+  \caption{Applying the orthogonal factors (Householder reflectors) to $R^{-1}$.
     \label{alg:BSOI}}
 \end{figure}
 
@@ -533,19 +531,17 @@ requires
 $O(n^3 p)$
 extra flops.
 
-\textit% \paragraph
-{Computational complexity} \label{sec:flops_count}
-of the BSOFI algorithms is outlined 
-in the table\,\ref{tab:developed_routines_complexity}, 
-which specifies the numbers of flops for the three phases.
+{Computational complexity}
+of the BSOFI algorithms is shown in Table~\ref{tab:developed_routines_complexity}.
 If {\tt BSTRI\_RV} is used, 
-the total flops complexity %$f(n,p)$ 
-of the BSOFI algorithm is $\Theta(7 n N^2)$, where $N=n{\times}p$.
-At the same time, 
-this is roughly just two times more than the 
-minimum Flops count for unstable Gaussian elimination based inversion without pivoting $\Theta(\frac{7}{2} n  N^2)$.
+the total flops is $\Theta(7 n N^2)$, where $N=n{\times}p$.
+This is roughly just two times more than the 
+minimum flops count $\Theta(\frac{7}{2} n  N^2)$
+for the unstable Gaussian elimination based inversion 
+without pivoting.
+
 \begin{table}[t]%[thb]
-  \caption[]{Operation counts for the three phases of BSOFI algorithm\footnotemark} 
+  \caption[]{Operation counts for the three phases of BSOFI algorithm.\footnotemark} 
   \label{tab:developed_routines_complexity}
   \begin{tabular}{r|l|c|c|c}
     \toprule
@@ -595,9 +591,9 @@ observation. % result from the parallel computing.
 The performance efficiency
 highly varies for different numerical kernels, 
 % implemented in BLAS/LAPACK routines, 
-and the matrix-matrix multiplication (MMM) routine {\tt DGEMM}
+and the matrix-matrix multiplication routine {\tt DGEMM}
 tends to be the most efficient among other BLAS/LAPACK kernels. % routines.
-Furthermore, performance gaps between MMM and other kernels
+Furthermore, performance gaps between {\tt DGEMM} and other kernels
 are usually much lower for 
 latency oriented processors compared to the throughput oriented ones.
 At the same time, in both cases, the gaps become smaller as the size of the problem grows.
@@ -609,7 +605,7 @@ Hence,
 % algorithm should be reorganized
 to attain better performance of hybrid CPU+GPU algorithm, 
 it is preferable to exploit 
-the throughput oriented GPU accelerators only for MMM
+the throughput oriented GPU accelerators only for {\tt DGEMM}
 and, conversely, 
 to use the latency oriented CPUs for the whole variety of required kernels.
 % and execute the rest of basic kernels on CPUs. 
@@ -633,7 +629,7 @@ and afterwards sent to GPU for trailing matrix update.%~\cite{Agullo09,Tomov10Ma
 
 Since 
 % the dominant part of computing in BSOFI is related to MMM, 
-a vast part of computations in the BSOFI is spent on MMM,
+a vast part of computations in the BSOFI is spent on {\tt DGEMM},
 this algorithm has a great potential to be reorganized 
 in accordance with the work distribution strategy discussed above.
 The necessary modifications are 
@@ -643,11 +639,11 @@ in Fig.\,\ref{fig:BSOFI_HostDevice}.
   \scalebox{0.75}{
     \input{figs/tex/BSOFI_HostDevice}
   }
-  \caption{Framework of the SOI algorithm
-    adopted to execution on hybrid CPU+GPU platforms%
+  \caption{Framework of the BSOFI
+    adopted to execution on hybrid CPU+GPU platforms.%
     \label{fig:BSOFI_HostDevice}}
 \end{figure}
-To overcome the lack of parallelism and MMM operations 
+To overcome the lack of parallelism and {\tt DGEMM} operations 
 in the factorization phase,  % (Fig.\,\ref{alg:BSOF})
 we modify the basic BSOFI algorithm 
 by merging the first two phases -- 
@@ -745,7 +741,7 @@ as illustrated in Fig.\,\ref{fig:BSTRI_CV_HostDevice_workload} and \ref{fig:BSTR
   \caption[]{Workload distribution between host and device(s) 
     while processing 
     $j$th block column and $i$th block row of $R^{-1}$ (a,b) 
-    and applying $Q_k^T$ to $R^{-1}$ (c,d)\footnotemark}
+    and applying $Q_k^T$ to $R^{-1}$ (c,d).\footnotemark}
   \label{fig:HostDevice_workload}
 \end{figure}
 \footnotetext{
@@ -847,11 +843,10 @@ for moderate and large values of $n$~\cite{GogolenkoBai13}.
 For more details and derivation of formulae, we refer to~\cite{GogolenkoBai13}.
 
 The formulae presented below use the following notation for time measures.
-$T^{CR}_{\texttt{R(P)}}$ denotes the wall time 
-for the BLAS/LAPACK routine {\tt R} with a tuple of parameters {\tt P}
-on the computational resource $CR$.
-% Here, $CR$ can be either $CPU$ or $GPU$ respectively.
-E.g., $T^{CPU}_{\texttt{DGEMM(m,n,k)}}$ is an elapsed time for 
+$T^{\rm cr}_{\texttt{R(P)}}$ denotes the wall time 
+for BLAS and LAPACK routines {\tt R} with a tuple of parameters {\tt P}
+on the computational resource CPU or GPU, respectively.
+E.g., $T^{\rm cpu}_{\texttt{DGEMM(m,n,k)}}$ is an elapsed time for 
 computing a product of $m$-by-$k$ and $k$-by-$n$ matrices
 by means of the routine $\texttt{DGEMM}$ on the CPU.
 We alias the routines for copying rectangular matrices to and from GPU 
@@ -859,11 +854,12 @@ with {\tt SET} and {\tt GET} respectively.
 We use braces if 
 these data exchange operations can be executed algorithmically 
 in parallel with some numerical kernel(s).
-I.e., $\{T_{\texttt{DGEMM(n,n,n)}}^{GPU},T^{GPU}_{\texttt{GET(n,n)}}\}$ is equal to 
-$\max\{T_{\texttt{DGEMM(n,n,n)}}^{GPU},T^{GPU}_{\texttt{GET(n,n)}}\}$ 
+I.e., $\{T_{\texttt{DGEMM(n,n,n)}}^{\rm gpu},T^{\rm gpu}_{\texttt{GET(n,n)}}\}$ 
+is equal to 
+$\max\{T_{\texttt{DGEMM(n,n,n)}}^{\rm gpu},T^{\rm gpu}_{\texttt{GET(n,n)}}\}$ 
 if copying is asynchronous and implemented 
 via {\tt cublasGetMatrixAsync}, 
-and $T_{\texttt{DGEMM(n,n,n)}}^{GPU}+T^{GPU}_{\texttt{GET(n,n)}}$ 
+and $T_{\texttt{DGEMM(n,n,n)}}^{\rm gpu}+T^{\rm gpu}_{\texttt{GET(n,n)}}$ 
 if synchronous routine {\tt cublasGetMatrix} is used.
 % In addition, $\eta_I$ and $\eta_F$ denote fractions 
 % of host resources assigned to 
@@ -899,27 +895,27 @@ where $\eta$ is a ratio between the number of cores involved in factorization of
 and the number of cores involved in inversion of $R$ in the second step of \Bsoftri 
 (e.g., the typical values of $\eta$ for single hexa-core are $3:3$, $4:2$, or $5:1$),
 \begin{align*}
-  \kappa_C =& \frac{\{T_{\texttt{DGEMM(n,n,n)}}^{GPU},T^{GPU}_{\texttt{GET(n,n)}}\}}{T^{CPU}_{\texttt{DGEMM(n,n,n)}} / (1 + \eta)} 
+  \kappa_C =& \frac{\{T_{\texttt{DGEMM(n,n,n)}}^{\rm gpu},T^{\rm gpu}_{\texttt{GET(n,n)}}\}}{T^{\rm cpu}_{\texttt{DGEMM(n,n,n)}} / (1 + \eta)} 
   % = \frac{P^{CPU}_{\square}}{\eta_I P^{GPU}_{\square\gets}}
   , \;
-  c_j = 2 \frac{T^{CPU}_{\texttt{DTRTRI(n)}} + 2 T^{CPU}_{\texttt{DTRMM(n,n)}}}{2 T^{CPU}_{\texttt{DGEMM(n,n,n)}}} - 1 > \frac{1}{6}
+  c_j = 2 \frac{T^{\rm cpu}_{\texttt{DTRTRI(n)}} + 2 T^{\rm cpu}_{\texttt{DTRMM(n,n)}}}{2 T^{\rm cpu}_{\texttt{DGEMM(n,n,n)}}} - 1 > \frac{1}{6}
   ,\;
   \\
-  \kappa_R =& \frac{\{T_{\texttt{DGEMM(n,n,n)}}^{GPU},T^{GPU}_{\texttt{GET(n,n)}}\}}{T^{CPU}_{\texttt{DGEMM(n,n,n)}}} 
+  \kappa_R =& \frac{\{T_{\texttt{DGEMM(n,n,n)}}^{\rm gpu},T^{\rm gpu}_{\texttt{GET(n,n)}}\}}{T^{\rm cpu}_{\texttt{DGEMM(n,n,n)}}} 
   % = \frac{P^{CPU}_{\square}}{P^{GPU}_{\square\gets}}
   , \;
   c_i = 
-  2 \frac{T^{CPU}_{\texttt{DTRTRI(n)}} + 3T^{CPU}_{\texttt{DTRMM(n,n)}}}{2 T^{CPU}_{\texttt{DGEMM(n,n,n)}}} - 2 > -\frac{1}{3},
+  2 \frac{T^{\rm cpu}_{\texttt{DTRTRI(n)}} + 3T^{\rm cpu}_{\texttt{DTRMM(n,n)}}}{2 T^{\rm cpu}_{\texttt{DGEMM(n,n,n)}}} - 2 > -\frac{1}{3},
   \\
-  \kappa_Q  =& \frac{\{T_{\texttt{DGEMM(2*n,n,n)}}^{GPU},T^{GPU}_{\texttt{GET(n,n)}}\}}{T^{CPU}_{\texttt{DGEMM(2*n,n,n)}}} 
+  \kappa_Q  =& \frac{\{T_{\texttt{DGEMM(2*n,n,n)}}^{\rm gpu},T^{\rm gpu}_{\texttt{GET(n,n)}}\}}{T^{\rm cpu}_{\texttt{DGEMM(2*n,n,n)}}} 
   % = \frac{P^{CPU}_{\square}}{P^{GPU}_{\square\frac{\rightleftharpoons}{2}}}
   , \,
-  c'_k  = \frac{T^{CPU}_\texttt{DORGQR(2*n,2*n,n)}}{T^{CPU}_\texttt{DGEMM(2*n,n,n)}} - 2 > \frac{1}{3}
+  c'_k  = \frac{T^{\rm cpu}_\texttt{DORGQR(2*n,2*n,n)}}{T^{\rm cpu}_\texttt{DGEMM(2*n,n,n)}} - 2 > \frac{1}{3}
   % c'_k  = \frac{5}{2}\frac{T^{CPU}_\texttt{DORGQR(2*n,2*n,n)}}{5 T^{CPU}_\texttt{DGEMM(n,n,n)}} - 2 > \frac{1}{3}
   , \,
   c''_k = {%\kappa_Q 
-    \frac{T^{GPU}_{\texttt{SET(n,n)}}}{%\{T_{\texttt{DGEMM(2*n,n,n)}}^{GPU},T^{GPU}_{\texttt{GET(n,n)}}\}
-    T_{\texttt{DGEMM(2*n,n,n)}}^{CPU}}}
+    \frac{T^{\rm gpu}_{\texttt{SET(n,n)}}}{%\{T_{\texttt{DGEMM(2*n,n,n)}}^{GPU},T^{GPU}_{\texttt{GET(n,n)}}\}
+    T_{\texttt{DGEMM(2*n,n,n)}}^{\rm cpu}}}
   .
 \end{align*}
 
@@ -944,7 +940,7 @@ This condition leads to the following lower bound for $l_F$
 where 
 \begin{equation*}
   % c_F = 2 \alpha_F - 1 = 2 \frac{T^{CPU}_{\texttt{DTRTRI(2n)}}}{2 T^{CPU}_{\texttt{DGEMM(n,n,n)}}} - 1,\;
-  \beta_F  = \frac{T^{CPU}_{\texttt{DGEQRF(2*n,n)}} + T^{CPU}_{\texttt{DORMQR('R','N',2*n,n,n)}}}{5 T^{CPU}_{\texttt{DGEMM(n,n,n)}}},
+  \beta_F  = \frac{T^{\rm cpu}_{\texttt{DGEQRF(2*n,n)}} + T^{\rm cpu}_{\texttt{DORMQR('R','N',2*n,n,n)}}}{5 T^{\rm cpu}_{\texttt{DGEMM(n,n,n)}}},
 \end{equation*}
 $\delta=1$ if the last column panel inversion 
 is postponed in the second step of \Bsoftri,
@@ -980,26 +976,29 @@ function of $l_F$.
 Its upper bound is $2\sqrt{2}$. 
 The lower bound on $\theta$ is $\sqrt{3}$ if $\delta = 1$.
 \begin{table}[t]%[thb]
-  \caption[]{Performance model of parallel ``host-device'' BSOFI
-    \label{tab:Parallel_BSOFTRI_performance}
-  }
+  \caption[]{Performance model of parallel ``host-device'' BSOFI,
+where Metric 1 is the number of flops on GPU, 
+Metric 2 is  the number of words CPU$\rightleftharpoons$GPU and 
+Metric 3 is the number of messages CPU$\rightleftharpoons$GPU. 
+\label{tab:Parallel_BSOFTRI_performance}
+}
   \begin{tabular}{l|c|c}
     \toprule
     Metric & \Bsoftri & \Bsoi  \\
     \hline\hline %\midrule
-    \# flops on GPU 
+    1 
     & $\frac{n^{3} p}{1 + \kappa_{R}} \left( 
       \theta^{2} \beta_F \left( 1 + \frac{\delta - 1 }{\delta \eta} \left( 1 + \frac{1}{\kappa_{C}} \right) \right) 
       + {p + 1 + 2 c_{i}} \right)$
     % & $\frac{6 n^{3} p^{2}}{1 + \kappa_{Q}}$  \\
     & $\frac{2 n^{3} p}{1 + \kappa_{Q}} \left( 3 p + 1 + 2 c'_k - 4 c''_k\right)$\\
     \hline
-    \# words CPU$\rightleftharpoons$GPU
+    2
     & $\frac{n^{2} p}{1 + \kappa_{R}} \frac{1}{2}\left(\frac{\theta^{2} \beta_F }{\delta} + 
       {p + 5 + 2 \kappa_R + 2 c_{i}}\right)$
     & $\frac{n^{2} p^{2}}{1 + \kappa_{Q}} \frac{1}{2} \frac{3 \kappa_{Q} + 4}{ \kappa_{Q} + 2}$ \\
     \hline
-    \# messages CPU$\rightleftharpoons$GPU
+    3
     & $2 p + 2(2 - \delta) \theta {\sqrt{\frac{\beta_{F} }{ \delta \eta} \left(1 + \frac{1}{\kappa_{C}}\right) \left(p - 2\right) }}
     + 2 \delta - 12$
     & $2 p-2$ \\
@@ -1051,8 +1050,8 @@ The lower bound on $\theta$ is $\sqrt{3}$ if $\delta = 1$.
 % to highlight benefits of hybrid implementation.
 % We refer to the report~\cite{GogolenkoBai13} for more experimental results.
 
-\textit%%\paragraph
-{Experimental setup.}
+%\textit%%\paragraph
+\paragraph{Experimental setup.}
 \label{sec:experimental_setup}
 %
 In order to examine our algorithmic solutions, 
@@ -1061,12 +1060,11 @@ stand-alone CPU and GPU processing,
 as well as hybrid CPU+GPU implementation.
 Our solvers receive $p$-cyclic matrix $H$ in an unpacked form as input, 
 and replace it with its inverse $H^{-1}$ 
-performing in-place inversion. 
+by performing in-place inversion. 
 % In our {hybrid CPU+GPU implementation}, 
 The POSIX threads are used for threading in the second step of \Bsoftri.
-In benchmarks discussed below, the codes were compiled with ICC and linked 
-against \CuBlas, \Magma, and %the \Blas and \Lapack provided by 
-Intel's MKL library.
+For performance data presented below, the codes were compiled with ICC  %@TODO
+and linked with \CuBlas, \Magma, and Intel's MKL library. %@TODO
 Our codes are publicly available from
 \url{https://github.com/SGo-Go/BSOFI}.
 % The peak performance of matrix-matrix multiplications (MMM) with \Gemm
@@ -1074,23 +1072,18 @@ Our codes are publicly available from
 % 140\,GFlops for \MKL and 167\,GFlops for \CuBlas. 
 % Hence, the gap between peak performance of MMM on GPU and on CPU 
 % is relatively small. 
-
-We measure performance on 
-2 sockets of Intel Xeon X5670 
-coupled with NVIDIA GeForce GTX 480 GPU.
-Intel Xeon X5670 is a 6-core processor 
-with 2.9\,GHz clock rate.
-GeForce GTX 480 is a \Cuda-enabled NVIDIA GPUs, 
-which implements Fermi architecture, 
+The performance data were collected on a 2-socket Intel Xeon X5670 
+coupled with NVIDIA GeForce GTX480 GPU.
+Intel Xeon X5670 is a 6-core processor with 2.9GHz clock rate.
+GTX480 is a \Cuda-enabled, which implements Fermi architecture, 
 and has 15 streaming multiprocessors with 32 \Cuda cores in each.
-For multi-GPU studies,
-we used a multi-GPU Fermi node on Dirac testbed cluster,
+For multi-GPU studies, we used a multi-GPU Fermi node on the Dirac cluster,
 housed at NERSC of Lawrence Berkeley National Laboratory.
-This node contains 2 Intel 5530 2.4\,GHz Quad core Nehalem processors, 
-and 4 C1060 Nvidia Tesla GPUs.
+This node contains 2 Intel 5530 2.4GHz Quad core Nehalem processors, 
+and 4 C1060 NVIDIA Tesla GPUs.
 
-\textit%%\paragraph
-{Performance tuning.} %Performance of building blocks and validation of load balancing approach
+%\textit%%\paragraph
+\paragraph{Performance tuning.} %Performance of building blocks and validation of load balancing approach
 \label{sec:BB_performance}
 %
 In order to make our hybrid CPU+GPU codes architecture-aware, 
@@ -1135,8 +1128,8 @@ The same approach is used to build a step-wise approximation for parameter $l_F$
 % Fig.\,\ref{fig:step_wise_params} illustrates resulting approximations 
 % for the Dirac's multi-GPU node.
 
-\textit%%\paragraph
-{Benchmarking results.}\label{sec:benchmarking}
+%\textit%%\paragraph
+\paragraph{Benchmarking results.}\label{sec:benchmarking}
 %
 % \paragraph{Comparison with  LU based inversion}\label{sec:compare_naive}
 %
@@ -1184,9 +1177,8 @@ BSOFI codes on different platforms for $N=10120$.
     \includegraphics[width=\textwidth]{./figs/pdf/BSOFTRI_BSOI}
     \caption{Performance of the hybrid BSOFI codes\label{fig:perf_hybrid_BSOFTRI_BSOI}}
   \end{subfigure}
-  \caption{Performance of the developed BSOFI codes on 
-    2 sockets of Intel Xeon X5670 
-    coupled with NVIDIA GeForce GTX 480 GPU.} 
+  \caption{Performance of BSOFI on 
+    a 2-socket Intel Xeon X5670 coupled with NVIDIA GeForce GTX480 GPU.} 
   \label{fig:performance_BSO}
 \end{figure}
 %
@@ -1213,7 +1205,7 @@ are less significant than for \Bsoi.
 % shows
 % performance of hybrid CPU+GPU codes for different values of $n$ and $p$. 
 If $n \gtrapprox 512$, performance curves are close to each other. 
-It is a consequence of reaching maximum performance for MMM
+It is a consequence of reaching maximum performance for {\tt DGEMM}
 on both CPU and GPU. 
 % \begin{figure}[h]
 %   \centering
@@ -1234,20 +1226,20 @@ We presented serial and parallel algorithms for structured orthogonal inversion
 of block $p$-cyclic matrices. % by introducing 
 % a number of techniques for high performance computing, 
 % such as blocking, batching and load balancing.
-We provided a quantitative
-performance model and discussed host-device load balance.
-Finally, we have developed and explored CPU, GPU and hybrid CPU+GPU codes for 
-in-place inversion of $p$-cyclic matrices. % The key trait of our 
+We provided a performance model and discussed host-device load balance.
+We developed and explored CPU, GPU and hybrid CPU+GPU codes
+% for in-place inversion of $p$-cyclic matrices. % The key trait of our 
 % hybrid CPU+GPU implementation is in 
 % using GPUs only for MMMs for better utilization of these devices.
 Benchmarking has shown that 
 our codes for multicores with GPU accelerators
-maintain relatively sustainable performance for different values 
-of parameter $n$, and attain up to 90\% of realistic peak performance. 
+maintain sustainable performance for different values 
+of problem size $n$, and attain up to 90\% of realistic peak performance in 
+terms of the operation of the matrix-matrix multiplication. 
 
 There are numerous ways to extend results presented in this paper.
 Since GPUs have a lot in common with Intel MIC architecture, 
-it seems natural to verify the approaches presented in this paper 
+it seems natural to verify the approaches
 on multicores with MIC accelerators.
 % The major bottleneck of the basic SOI algorithm 
 % is a lack of parallelism in the orthogonal factorization phase. 
@@ -1276,7 +1268,7 @@ SOI with inversion based on explicit formulae.
 % then use orthogonal inversion method to compute inverse of the reduced matrix, 
 % and finally recover elements by means of formulae for explicit inversion.
 %
-We conclude this paper by mentioning 
+We conclude by mentioning 
 that the solutions proposed here can be extended to 
 the problems with other block structured matrices such as
 block upper Hessenberg matrices. 
