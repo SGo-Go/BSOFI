@@ -123,7 +123,7 @@ Since the pioneering works of
 Varga, Young, Romanovsky, and others in the 1950s,
 $p$-cyclic matrices
 have been found to be a very useful class of structured matrices
-with applications in numerical solutions of differential equations, 
+with applications in numerical methods for differential equations, 
 Markov chain modeling and quantum Monte Carlo simulations. 
 The concept of block $p$-cyclic matrices
 in its modern term refers to matrices which can be
@@ -223,7 +223,8 @@ dealing with a special case of $p$-cyclic systems,
 called almost block diagonal (ABD) systems~\cite{Wright92BSOF}.
 Nevertheless, 
 while handling the ABD systems successfully, 
-Gaussian elimination processes could fail.
+Gaussian elimination processes could fail 
+in more general cases of $p$-cyclic systems.
 In fact, in~\cite{Wright93}, it is shown that 
 the Gaussian elimination with row partial pivoting
 produces exponential error growth
@@ -273,7 +274,7 @@ and applying the transpose of the factor $Q$.
 \textit{Block structured orthogonal factorization (BSOF)} 
 is a block structured QR factorization algorithm introduced 
 in~\cite{Wright92BSOF}, and has an identical complexity to the best known 
-block structured Gaussian elimination based algorithm. 
+block structured Gaussian elimination based algorithms. 
 The essence of this algorithm is 
 in transformation of the matrix $H$ 
 through a sequence of $p-1$ block row updates (Fig.\,\ref{alg:BSOF}). 
@@ -340,8 +341,7 @@ by identity blocks:
     Q_{21}^{(k)} & Q_{22}^{(k)}
   \end{bmatrix},
 \end{equation*}
-and $R$ has block upper bidiagonal form with 
-the last block column:
+and $R$ has block upper bidiagonal form with full last block column:
 \begin{equation}
   \label{eq:matr_R}
   R =
@@ -911,7 +911,8 @@ Our codes are publicly available from
 The performance data were collected on a 2-socket Intel Xeon X5670 
 coupled with NVIDIA GeForce GTX480 GPU.
 Intel Xeon X5670 is a 6-core processor with 2.9GHz clock rate.
-GTX480 is a \Cuda-enabled, which implements Fermi architecture, 
+GTX480 is a \Cuda-enabled NVIDIA GPU, 
+which implements Fermi architecture, 
 and has 15 streaming multiprocessors with 32 \Cuda cores in each.
 For multi-GPU studies, we used a multi-GPU Fermi node on the Dirac cluster,
 housed at NERSC of Lawrence Berkeley National Laboratory.
@@ -922,7 +923,7 @@ and 4 C1060 NVIDIA Tesla GPUs.
 \label{sec:BB_performance}
 %
 In order to make our hybrid CPU+GPU codes architecture-aware, 
-we perform benchmarking of basic kernels used in the modified SOI algorithm, 
+we perform benchmarking of basic kernels used in the modified BSOFI algorithm, 
 evaluate parameters for (\ref{eq:l_j})--(\ref{eq:l_F}), 
 and embed their approximate models into the code.
 Our experiments have shown that 
@@ -1012,7 +1013,7 @@ Since GPUs have a lot in common with Intel MIC architecture,
 it seems natural to verify the approaches
 on multicores with MIC accelerators.
 Another promising direction is in coupling of 
-SOI with inversion based on explicit formulae. 
+BSOFI with inversion based on explicit formulae. 
 We conclude by mentioning 
 that the solutions proposed here can be extended to 
 the problems with other block structured matrices such as
