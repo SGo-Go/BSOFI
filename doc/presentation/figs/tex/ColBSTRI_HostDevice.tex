@@ -1,0 +1,20 @@
+  \begin{tikzpicture}[>=latex,text depth=0.0ex]
+
+    \begin{scope}[xshift=-5*\SizeMatrBlock,yshift=-5*\SizeMatrBlock]
+      \node[matrix,row sep=1pt,column sep=1pt,very thick,rectangle,matrix anchor=a1j.north east] (XinputBottom) {
+        &\annotCElem{j-1}&\annotCElem{j}\\
+        \annotRElem{1}&\osFrame{R}{1j-1}&\labelElem{RonGPU1}\zsFrame{R}{1j}\\
+        &\node{$\vdots$};&\node{$\vdots$};\\
+        \annotRElem{l_j}&\osFrame{R}{l_j,j-1}&\labelElem{RonGPUn}\zsFrame{R}{l_j,j}\\
+        \annotRElem{l_j+1}&\osFrame{R}{l_j+1,j-1}&\labelElem{RonCPU1}\zsFrame{R}{l_j+1,j}\\
+        &\node{$\vdots$};&\node{$\vdots$};\\
+        \annotRElem{j-2}&\osFrame{R}{j-2,j-1}&\labelElem{RonCPUzeron}\zsFrame{R}{j-2,j}\\
+        \annotRElem{j-1}&\otFrame{R}{j-2,j-1}&\isFrame{R}{}\\
+        \annotRElem{j}&\zsFrame{R}{j,j-1}&\labelElem{RonCPUn}\itFrame{R}{jj}\\
+      };
+    \end{scope}
+    \vertann[1.5em]{RonGPU1}{RonGPUn}{\scriptsize $l_j$}
+    \vertann[3em]{RonGPU1}{RonGPUn}{GPU(s)}
+    \vertann[1.5em]{RonCPU1}{RonCPUzeron}{\scriptsize $j-l_j-2$}
+    \vertann[3em]{RonCPU1}{RonCPUn}{CPU}
+  \end{tikzpicture}

@@ -1,0 +1,55 @@
+\begin{tikzpicture}[>=latex,text depth=0.0ex]
+  \tikzstyle{algBlockStyle}  = [rectangle,very thick,inner sep=2pt,minimum height=3.5em,draw,anchor=north west,text centered]
+  %\tikzstyle{algBlockStyle}  = [fill=red!50!black!50,draw=none,text=white,shading angle=0,inner color=white,outer color=red!50!black!80]
+  \tikzstyle{blockBSOF}  = [draw=red!50!black!50,fill=red!20,text=red!50!black!80]
+  \tikzstyle{blockBSTRI} = [draw=green!50!black!50,fill=green!20,text=green!50!black!80]
+  \tikzstyle{blockBSOI}  = [draw=blue!50!black!50,fill=blue!20,text=blue!50!black!80]
+
+  %\tikzstyle{frameGPU}  = [anchor=north west,very thin,preaction={fill, black},pattern=dots,pattern color=green,draw]
+  \tikzstyle{frameGPU}  = [anchor=north west,very thick,preaction={fill, green},pattern=grid,pattern color=black,draw]
+  \tikzstyle{frameCPU}  = [anchor=north west,very thick,preaction={fill,cyan!90!black!100},pattern=bricks,pattern color=white,draw=white]
+  
+
+%below of=1, xshift=-1.5cm, very thin,shading=true,inner color=white,outer color=blue!40
+
+  \node[frameCPU,text width=17em,minimum height=19em] at (0,2em) {};
+  \node[fill=cyan!90!black!100,text=white,font=\bfseries,text width=17em,anchor=north west,text centered,very thick,draw=white] at (0,2em) {\large Multi-core CPU};
+  \node[frameGPU, text width=9em,minimum height=19em] at (18em,2em) {};
+  \node[fill=black,text=green,font=\bfseries,text width=9em,anchor=north west,text centered,very thick,draw=white] at (18em,2em) {\large GPU(s)};
+  % . 
+  \node[algBlockStyle,blockBSOF,text width=17em] (BSOFTRI1) {%
+    Partial factorization of $H$ ($l_F$ iterations)
+    % (without updating the last block column)
+  };
+  \node [anchor=east] at (BSOFTRI1.west) {{\bf Step 1}};
+
+  \node[algBlockStyle,blockBSOF,text width=9em] (BSOFTRI2) at (0,-4em) {%
+    Complete SOF of $H$
+  };
+  \node [anchor=east] at (BSOFTRI2.west) {{\bf Step 2}};
+
+  \pause
+  \node<2->[algBlockStyle,blockBSTRI,text width=17em] at (10em,-4em) {
+    Partial inversion of $R$ via CV of BBS
+    % ($j_F$ steps)
+  };
+
+  \node<2->[algBlockStyle,blockBSTRI,text width=27em] (BSOFTRI3) at (0em,-8em) {
+    Complete inversion of $R$ via RV of BBS
+  };
+
+  \path (BSOFTRI2.west) +(-3.5em,0) node[anchor=south,rotate=90] {\large \Bsoftri};
+
+  \node<2-> [anchor=east] at (BSOFTRI3.west) {{\bf Step 3}};
+
+  \pause
+
+  \draw<3-> (-4em,-12.25em) -- (28em,-12.25em);
+  
+  \node<3->[algBlockStyle,blockBSOI,text width=27em] (BSOI) at (0em,-13em) {
+    Apply Householder reflectors
+  };
+
+  \path<3-> (BSOI.west) +(-3.5em,0) node[anchor=south,rotate=90] {\large \Bsoi};
+
+\end{tikzpicture}

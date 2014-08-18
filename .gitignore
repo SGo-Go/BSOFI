@@ -1,0 +1,11 @@
+*.pyc
+*~
+*.xls
+*.log
+*.nav 
+*.toc
+*.snm
+*.aux
+*.out
+*.blg
+*.bbl

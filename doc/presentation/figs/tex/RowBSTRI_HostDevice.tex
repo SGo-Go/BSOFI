@@ -1,0 +1,38 @@
+\begin{tikzpicture}[>=latex,text depth=0.0ex]
+
+  \begin{scope}[xshift=-5*\SizeMatrBlock,yshift=-5*\SizeMatrBlock]
+    \node[matrix,row sep=1pt,column sep=1pt,very thick,rectangle] (XinputBottom) {
+      \annotRElem{i}
+      &\labelElem{RonCPU1}\itFrame{R}{ii}
+      &\isFrame{R}{i,i+1}
+      &\labelElem{RonCPUzero1}\zsFrame{R}{i,i+2}
+      &[0.5em]\node{$\cdots$};[0.5em]
+      &\labelElem{RonCPUzeron}\zsFrame{R}{i,k}
+      &\labelElem{RonGPU1}\zsFrame{R}{i,k+1}
+      &\node{$\cdots$};
+      &\labelElem{RonGPUn}\zsFrame{R}{i,p-1}
+      &\labelElem{RonCPUlast}\isFrame{R}{ip}\\
+      % 
+      &\zsFrame{R}{i-1,i}
+      &\otFrame{R}{i-1,i+1}
+      &\osFrame{R}{i-1,i+2}
+      &[0.5em]\node{$\cdots$};[0.5em]
+      &\osFrame{R}{i-1,k}
+      &\osFrame{R}{i-1,k+1}
+      &\node{$\cdots$};
+      &\osFrame{R}{i-1,p-1}
+      &\osFrame{R}{i-1,p}\\
+      % 
+      &\annotCElem{i}&\annotCElem{i+1}&\annotCElem{i+2}&
+      &\annotCElem{p-l_i-1}&\annotCElem{p-l_i}&
+      &\annotCElem{p-1}&\annotCElem{p}\\
+    };
+  \end{scope}
+  \horizann[1.em]{RonGPU1}{RonGPUn}{\scriptsize $l_i$}
+  \horizann[2.5em]{RonGPU1}{RonGPUn}{GPU(s)}
+  \horizann[1.em]{RonCPUzero1}{RonCPUzeron}{\scriptsize $p-i-l_i-2$}
+  \horizann[2.5em]{RonCPU1}{RonCPUzeron}{CPU}%{$\cdot$}
+  \lhorizann[2.5em]{RonCPUlast}{RonCPUlast}{CPU}
+
+  % \node at (a) {CPU};
+\end{tikzpicture}

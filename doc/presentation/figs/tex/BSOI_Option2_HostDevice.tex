@@ -1,0 +1,23 @@
+  \begin{tikzpicture}[>=latex,text depth=0.0ex]
+
+    \begin{scope}[xshift=-5*\SizeMatrBlock,yshift=-5*\SizeMatrBlock]
+      \node[matrix,row sep=1pt,column sep=1pt,very thick,rectangle] (XinputBottom) {
+        &\annotCElem{k}&\annotCElem{k+1}\\
+        \annotRElem{1}&\isFrame{X}{}&\labelElem{XonCPU1}\osFrame{X}{}\\
+        &\node{$\vdots$};&\node{$\vdots$};\\
+        \annotRElem{P-l_k}&\isFrame{X}{}&\labelElem{XonCPUn}\osFrame{X}{}\\
+        \annotRElem{P-l_k+1}&\isFrame{X}{}&\labelElem{XonGPU1}\osFrame{X}{}\\
+        &\node{$\vdots$};&\node{$\vdots$};\\
+        \annotRElem{k-1}&\isFrame{X}{}&\osFrame{X}{}\\
+        \annotRElem{k}&\itFrame{X}{1j}&\labelElem{XonGPUk}\osFrame{X}{}\\
+        \annotRElem{k+1}&\zsFrame{X}{}&\labelElem{XonGPU1low}\osFrame{X}{}\\
+        &\node{$\vdots$};&\node{$\vdots$};\\
+        \annotRElem{P}&\zsFrame{X}{}&\labelElem{XonGPUn}\osFrame{X}{}\\
+      };
+    \end{scope}
+    \vertann[1.5em]{XonCPU1}{XonCPUn}{\scriptsize $P-l_k$}
+    \vertann[3em]{XonCPU1}{XonCPUn}{CPU}
+    \vertann[1.5em]{XonGPU1}{XonGPUk}{\scriptsize $k+l_k-P$}
+    \vertann[1.5em]{XonGPU1low}{XonGPUn}{\scriptsize $P-k$}
+    \vertann[3em]{XonGPU1}{XonGPUn}{GPU(s)}
+  \end{tikzpicture}

@@ -1,0 +1,97 @@
+\usepackage{tikz}
+% \usetikzlibrary{decorations.pathmorphing} % noisy shapes
+% \usetikzlibrary{fit}					% fitting shapes to coordinates
+% \usetikzlibrary{backgrounds}	% drawing the background after the foreground
+
+\def\HalfSizeMatrBlock{0.75em}
+\def\SizeMatrBlock{2*\HalfSizeMatrBlock}
+
+
+\colorlet{DarkMatrixColor}{black}
+\colorlet{LightMatrixColor}{black!20}
+\colorlet{TextMatrixColor}{black}
+\colorlet{LineAnnotMatrixColor}{black}
+
+\tikzstyle{element}  = [rectangle,thick,minimum size=2*\HalfSizeMatrBlock,font=\small,inner sep=0]
+\tikzstyle{annot}    = [font=\scriptsize,inner sep=0,text=TextMatrixColor]
+\tikzstyle{input}    = [element,draw=DarkMatrixColor,fill=LightMatrixColor]
+\tikzstyle{output}   = [element,draw=DarkMatrixColor,fill=DarkMatrixColor]
+\tikzstyle{modified} = [element,draw=DarkMatrixColor,fill=LightMatrixColor]
+\tikzstyle{zero}     = [element,draw=DarkMatrixColor,fill=white]
+\tikzstyle{empty}    = [element]
+
+
+\def\annotElem#1{\node[annot]{$#1$};}
+\def\annotRElem#1{\node[annot,anchor=east]{$#1$};}
+\def\annotCElem#1{\node[annot]{$#1$};}
+
+\def\isElem#1#2{\node (a#2)   [element,input]% {}; \node at(a#1)
+  {$#1_{#2}$};}
+\def\osElem#1#2{\node (a#2)   [element,output]{$#1_{#2}$};}
+\def\msElem#1#2{\node (a#2) [element,modified]{$#1_{#2}$};}
+\def\zsElem#1#2{\node (a#2)     [element,zero]{};}
+\def\esElem#1#2{\node (a#2)    [element,empty]{};}
+
+\def\isFrame#1#2{\node (a#2)   [element,input]{};}
+\def\osFrame#1#2{\node (a#2)   [element,output]{};}
+\def\msFrame#1#2{\node (a#2) [element,modified]{};}
+\def\zsFrame#1#2{\node (a#2)     [element,zero]{};}
+\def\esFrame#1#2{\node (a#2)    [element,empty]{};}
+
+\def\labelElem#1{\node (#1)    [element,empty]{};}
+\def\hsElem#1#2{\node (#2)    [element,modified]{$#2$};}
+\def\ouElem#1#2{\node (a#2)   [element,output]{};}
+
+\def\tElem#1#2{\node (a#2)      [element,zero]{};
+  \draw[#2] (-\HalfSizeMatrBlock, \HalfSizeMatrBlock) -- ( \HalfSizeMatrBlock, \HalfSizeMatrBlock) -- ( \HalfSizeMatrBlock,-\HalfSizeMatrBlock) -- (-\HalfSizeMatrBlock, \HalfSizeMatrBlock);
+  % \node {$R_{#1}$};
+}
+
+\def\otElem#1#2{\tElem{#2}{output}}
+\def\itElem#1#2{\tElem{#2}{input}}
+
+\def\otFrame#1#2{\tElem{#2}{output}}
+\def\itFrame#1#2{\tElem{#2}{input}}
+
+\newcommand{\vertann}[4][2em]{%
+  \draw[LineAnnotMatrixColor,dashed] (#3.south east) -- +(#1,0)
+  node [coordinate, very near end] (a) {};
+  \draw[LineAnnotMatrixColor,dashed] (#2.north east) -- +(#1,0)
+  node [coordinate, very near end] (b) {};
+  \draw[LineAnnotMatrixColor,|<->|] (a) -- node[LineAnnotMatrixColor,fill=white,sloped] {#4} (b);
+}
+
+\newcommand{\horizann}[4][2em]{%
+  \draw[LineAnnotMatrixColor,dashed] (#2.north west) -- +(0,#1)
+  node [coordinate, very near end] (a) {};
+  \draw[LineAnnotMatrixColor,dashed] (#3.north east) -- +(0,#1)
+  node [coordinate, very near end] (b) {};
+  \draw[LineAnnotMatrixColor,|<->|] (a) -- node[LineAnnotMatrixColor,fill=white,sloped] {#4} (b);
+  \node (ann) at (a) {};
+}
+
+\newcommand{\rhorizann}[4][2em]{%
+  \draw[LineAnnotMatrixColor,dashed] (#2.north west) -- +(0,#1)
+  node [coordinate, very near end] (a) {};
+  \draw[LineAnnotMatrixColor,dashed] (#3.north east) -- +(0,#1)
+  node [coordinate, very near end] (b) {};
+  \draw[LineAnnotMatrixColor,|<->|] (a) -- node% [fill=white]
+  (ann) {$\cdot$} (b);
+  \draw[LineAnnotMatrixColor,<-] (ann.center) -- +(1em,1em)
+  node [coordinate] (a) {};
+  \draw (a) -- 
+  node[LineAnnotMatrixColor,fill=white,anchor=west,draw] {#4} +(1em,0em);
+}
+
+\newcommand{\lhorizann}[4][2em]{%
+  \draw[LineAnnotMatrixColor,dashed] (#2.north west) -- +(0,#1)
+  node [coordinate, very near end] (a) {};
+  \draw[LineAnnotMatrixColor,dashed] (#3.north east) -- +(0,#1)
+  node [coordinate, very near end] (b) {};
+  \draw[LineAnnotMatrixColor,|<->|] (a) -- node% [fill=white]
+  (ann) {$\cdot$} (b);
+  \draw[LineAnnotMatrixColor,<-] (ann.center) -- +(0em,3em)
+  node [coordinate] (a) {};
+  \draw (a) -- 
+  node[LineAnnotMatrixColor,fill=white,anchor=east] {#4} +(-2em,0em);
+}
